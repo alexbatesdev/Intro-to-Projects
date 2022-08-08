@@ -1,0 +1,24 @@
+{
+  "name": "intro-to-projects",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "start": "http-server ./html/",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mcbuzzerr/Intro-to-Projects.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Mcbuzzerr/Intro-to-Projects/issues"
+  },
+  "homepage": "https://github.com/Mcbuzzerr/Intro-to-Projects#readme",
+  "dependencies": {
+    "http-server": "^14.1.1",
+    "phaser": "^3.55.2"
+  }
+}
