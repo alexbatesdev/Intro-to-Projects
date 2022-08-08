@@ -1,8 +1,5 @@
 
 // Current Tutorial https://youtu.be/4q2vvZn5aoo?t=2130
-// vvv Basic Canvas tutorials vvv
-//https://www.linkedin.com/learning/adobe-animate-cc-html5-canvas-and-webgl/welcome?autoplay=true&u=85000002
-//https://www.linkedin.com/learning/learning-html-canvas/graphics-programming-with-javascript?autoplay=true&u=85000002
 
 const canvas = document.querySelector("canvas");
 const c = canvas.getContext("2d");
@@ -24,14 +21,14 @@ class Spawner {
         this.spawnLoop();
     }
 
-    spawnTroop() {
-        this.troops.push(new Troop(this.position.x, this.position.y, 2, 0));
+    spawnTroop(vX, vY) {
+        this.troops.push(new Troop(this.position.x, this.position.y, vX, vY));
     }
 
     spawnLoop() {
         let timer = window.setInterval(() => {
-            this.spawnTroop();
-        }, 3000);
+            this.spawnTroop(1, 0);
+        }, 500);
     }
 
     draw() {
@@ -82,6 +79,10 @@ class Troop {
         this.draw();
         this.position.y += this.velocity.y;
         this.position.x += this.velocity.x;
+
+        if (intersectRect(this, pathTurn)) {
+            console.log("Gorp");
+        }
     }
 }
 
@@ -140,6 +141,37 @@ class Platform {
     }
 }
 
+class PathTurn {
+    constructor(x, y, sendX, sendY) {
+        this.position = {
+            x: x,
+            y: y
+        };
+        this.width = 25;
+        this.height = 25;
+        
+        this.sendX = sendX;
+        this.sendY = sendY;
+    }
+
+    draw() {
+        c.fillStyle = "#454545";
+        c.fillRect (
+            this.position.x, 
+            this.position.y,
+            this.width,
+            this.height
+        );
+    }
+}
+
+function intersectRect(r1, r2) {
+    return !(r2.left > r1.right || 
+             r2.right < r1.left || 
+             r2.top > r1.bottom ||
+             r2.bottom < r1.top);
+  }
+
 // //////////////////////////////////////////////////////////////
 
 const player = new Player();
@@ -147,6 +179,7 @@ const platform = new Platform(100, 20, 100, 400);
 const wall = new Platform(20, 100, 500, 400);
 const spawner = new Spawner(150, 150);
 const troop1 = new Troop(200,200, 1, 0);
+const pathTurn = new PathTurn(500, 150, 0, 1);
 
 const keys = {
     right: {
@@ -161,18 +194,15 @@ const keys = {
     down: {
         pressed: false
     }
-    
+
 }
 
 
 function run() {
     requestAnimationFrame(run);
     c.clearRect(0, 0, canvas.width, canvas.height);
-    player.update();
-    platform.draw();
-    wall.draw();
-    spawner.update();
-    troop1.update();
+    updateAll();
+    drawAll();
 
     if (keys.right.pressed) {
         player.velocity.x = player.moveSpeed;
@@ -189,21 +219,18 @@ function run() {
     } else {
         player.velocity.y = 0;
     }
+}
 
-    if (player.position.y + player.height <= platform.position.y
-        && player.position.y + player.height + player.velocity.y >= platform.position.y
-        && player.position.x + player.width >= platform.position.x
-        && player.position.x <= platform.position.x + platform.width
-        ) {
-        player.velocity.y = 0;
-    }
-    if (player.position.y >= platform.position.y
-        && player.position.y + player.velocity.y <= platform.position.y
-        && player.position.x + player.width >= platform.position.x
-        && player.position.x <= platform.position.x + platform.width
-        ) {
-        player.velocity.y = 0;
-    }
+function updateAll() {
+    player.update();
+    spawner.update();
+    troop1.update();
+}
+
+function drawAll() {
+    platform.draw();
+    pathTurn.draw();
+    wall.draw();
 }
 
 run();
