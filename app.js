@@ -121,4 +121,32 @@ function update () {
     } else {
         player.setVelocityY(0);
     }
+
+    class Spawner {
+        constructor() {
+            
+        }
+    }
+}
+
+class Tower extends Phaser.GameObjects.Image{
+    constructor(scene, x, y){
+        super(scene, x, y, "tower");
+        this.setScale(2);
+    }
+    turret(scene) {
+        Phaser.GameObjects.Image.call(this, scene, this.x, this.y, "turret");
+        this.nextFire = 0;
+    }
+    placeTurret(scene) {
+        this.turret(scene);
+        scene.add.existing(this);
+    }
+    update(time, delta) {
+        if (time > this.nextFire) {
+            this.nextFire = time + 1000;
+            this.scene.physics.add.sprite(this.x, this.y, "bullet");
+        }
+    }
+
 }
