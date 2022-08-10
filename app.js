@@ -132,6 +132,7 @@ function update () {
 class Tower extends Phaser.GameObjects.Image{
     constructor(scene, x, y){
         super(scene, x, y, "tower");
+        this.cost = 100;
         this.setScale(2);
     }
     turret(scene) {
@@ -146,7 +147,39 @@ class Tower extends Phaser.GameObjects.Image{
         if (time > this.nextFire) {
             this.nextFire = time + 1000;
             this.scene.physics.add.sprite(this.x, this.y, "bullet");
+            this.dx = 0;
+            this.dy = 0;
+            this.lifespan = 0;
+            this.speed = Phaser.Math.GetSpeed(600, 1);
         }
     }
+}
 
+class Bullet extends Phaser.GameObjects.Image{
+    constructor(scene, x, y){
+        super(scene, x, y, "bullet");
+        this.speed = 600;
+        this.lifespan = 0;
+        this.setActive(false);
+        this.setVisible(false);
+        this.setScale(2);
+    }
+    fire(x, y, angle) {
+        this.setActive(true);
+        this.setVisible(true);
+        this.setPosition(x, y);
+        this.setRotation(angle);
+        this.dx = Math.cos(angle);
+        this.dy = Math.sin(angle);
+        this.lifespan = 100;
+    }
+    update(time, delta) {
+        this.lifespan -= delta;
+        this.x += this.dx * (this.speed * delta);
+        this.y += this.dy * (this.speed * delta);
+        if (this.lifespan <= 0) {
+            this.setActive(false);
+            this.setVisible(false);
+        }
+    }
 }
