@@ -121,10 +121,4 @@ function update () {
     } else {
         player.setVelocityY(0);
     }
-
-    class Spawner {
-        constructor() {
-            
-        }
-    }
 }
