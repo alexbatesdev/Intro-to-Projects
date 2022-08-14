@@ -205,17 +205,18 @@ class Troop extends Phaser.GameObjects.GameObject {
 }
 
 class WaveMachine {
-    constructor(scene) {
+    constructor(scene, secBetweenWaves = 5) {
         this.scene = scene;
-        this.waveProgress = 0;
         this.inProgress = false;
         this.isAuto = false;
+        this.milliBetweenWaves = secBetweenWaves * 1000;
         this.waveGroup;
         this.timer;
     }
 
     startWave(roundNum, delaySec, quantity = this.fib(roundNum)) {
         console.log(`Starting wave ${roundNum} with ${quantity} bloons`);
+        this.inProgress = true;
         let delayMilli = delaySec * 1000;
         this.waveGroup = new Phaser.GameObjects.Group(this.scene);
         this.timer = this.scene.time.addEvent({
@@ -223,15 +224,13 @@ class WaveMachine {
             callback: () => {
                 let troop = new Troop(this.scene, 50, 50);
                 this.waveGroup.add(troop);
-                //console.log(this.waveGroup);
-                console.log(`Added troop to troop group`);
-                this.waveProgress++;
-                if (this.waveProgress >= quantity) {
-                    this.waveProgress = 0;
+                console.log('Spawned a troop');
+                if (this.timer.repeatCount === 0) {
+                    this.inProgress = false;
                     if (this.isAuto) {
                         // wait for 5 seconds after the timer finishes before starting the next wave
                         this.scene.time.addEvent({
-                            delay: quantity * delayMilli + 5000,
+                            delay: this.milliBetweenWaves,
                             callback: () => {
                                 this.startWave(roundNum + 1, delaySec);
                             }
