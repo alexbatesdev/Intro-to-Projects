@@ -129,8 +129,6 @@ var config = {
 
 var game = new Phaser.Game(config);
 
-=======
->>>>>>> 89e25ff (Merged all our work together)
 class Tower extends Phaser.GameObjects.Image{
     constructor(scene, x, y){
         super(scene, x, y, "tower");
