@@ -78,7 +78,9 @@ class sceneGame extends Phaser.Scene {
         let spawner = new WaveMachine(this);
         spawner.startAutoWaves(1, 0.5);
         //spawner.startWave(7, 0.5)
-
+        //place a Tower
+        let tower = new Tower(this, 20, 20);
+        tower.placeTower(this);
         this.background.setInteractive();
         this.background.on('pointerdown', function (pointer) {
             console.log("you clicked the background!")
@@ -131,18 +133,14 @@ var game = new Phaser.Game(config);
 
 class Tower extends Phaser.GameObjects.Image{
     constructor(scene, x, y){
-        super(scene, x, y, "tower");
+        super(scene);
+        this.scene = scene;
+        this.key = "tower";
+        this.x = x;
+        this.y = y;
         this.cost = 100;
         this.setScale(2);
         console.log("Made a tower");
-    }
-    turret(scene) {
-        Phaser.GameObjects.Image.call(this, scene, this.x, this.y, "turret");
-        this.nextFire = 0;
-    }
-    placeTurret(scene) {
-        this.turret(scene);
-        scene.add.existing(this);
     }
     update(time, delta) {
         if (time > this.nextFire) {
@@ -158,7 +156,11 @@ class Tower extends Phaser.GameObjects.Image{
 
 class Bullet extends Phaser.GameObjects.Image{
     constructor(scene, x, y){
-        super(scene, x, y, "bullet");
+        super(scene);
+        this.scene = scene;
+        this.key = "bullet";
+        this.x = x;
+        this.y = y;
         this.speed = 600;
         this.lifespan = 0;
         this.setActive(false);
