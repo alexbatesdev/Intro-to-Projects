@@ -1,23 +1,28 @@
-const sceneBoot = {
-    key: 'boot',
-    preload: function () {
+class sceneBoot extends Phaser.Scene {
+    constructor() {
+        super({ key: 'boot' });
+    }
+    preload() {
         console.log('preload');
-    },
-    create: function () {
+    }
+    create() {
         this.add.text(20, 20, "Loading...", { font: "24px Arial", fill: "#ffffff" });
         console.log("HELLO I AM THE BOOT SCENE");
         this.scene.start('mainmenu');
     }
 };
 
-const sceneMainMenu = {
-    key: 'mainmenu',
-    active: false,
-    preload: function () {
+class sceneMainMenu extends Phaser.Scene {
+    constructor() {
+        super({ key: 'mainmenu' });
+    }
+
+    preload() {
         this.load.image('background', 'assets/mainMenuTest.png');
         console.log("HELLO I AM THE MAIN MENU SCENE");
-    },
-    create: function () {
+    }
+
+    create() {
 
         this.add.image(400, 300, 'background');
         this.add.text(20, 20, "Main Menu", { font: "24px Arial", fill: "#ffffff" });
@@ -34,17 +39,20 @@ const sceneMainMenu = {
 let gfx = null;
 let path = null;
 
-const sceneGame = {
-    key: 'game',
-    active: false,
-    preload: function () {
+class sceneGame extends Phaser.Scene {
+    constructor() {
+        super({ key: 'game' });
+    }
+
+    preload() {
         console.log("starting our game!");
         this.load.image('background', 'assets/map1.png');
         this.load.image("spawner", "assets/spawner.png");
         this.load.image("troop", "assets/troop.png");
         
-    },
-    create: function () {
+    }
+
+    create() {
         this.add.text(20, 20, "Game", { font: "24px Arial", fill: "#ffffff" });
         //Places background image
         let centerX = this.cameras.main.centerX;
@@ -78,8 +86,8 @@ const sceneGame = {
             let y = pointer.y;
             console.log(`${x}, ${y}`);
         }.bind(this));
-    },
-    update: function (time, delta) {
+    }
+    update(time, delta) {
         //Draws path
         gfx.clear();
         gfx.lineStyle(2, 0xffffff, 1);
@@ -92,7 +100,7 @@ const sceneGame = {
 class SceneTest extends Phaser.Scene {
     constructor() {
         super({ key: 'test' });
-        
+
     }
     preload() {
         this.load.image('background', 'assets/map1.png');
@@ -116,7 +124,7 @@ var config = {
     type: Phaser.AUTO,
     width: 800,
     height: 600,
-    scene: [sceneBoot, sceneMainMenu, sceneGame, SceneTest],
+    scene: [sceneBoot, sceneMainMenu, sceneGame, SceneTest]
 };
 
 var game = new Phaser.Game(config);
