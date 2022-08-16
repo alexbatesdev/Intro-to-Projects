@@ -1,4 +1,4 @@
-class sceneBoot extends Phaser.Scene {
+class SceneBoot extends Phaser.Scene {
     constructor() {
         super({ key: 'boot' });
     }
@@ -8,13 +8,13 @@ class sceneBoot extends Phaser.Scene {
     create() {
         this.add.text(20, 20, "Loading...", { font: "24px Arial", fill: "#ffffff" });
         console.log("HELLO I AM THE BOOT SCENE");
-        this.scene.start('mainmenu');
+        this.scene.start('mainMenu');
     }
 };
 
-class sceneMainMenu extends Phaser.Scene {
+class SceneMainMenu extends Phaser.Scene {
     constructor() {
-        super({ key: 'mainmenu' });
+        super({ key: 'mainMenu' });
     }
 
     preload() {
@@ -33,13 +33,17 @@ class sceneMainMenu extends Phaser.Scene {
             console.log("you clicked play!")
             this.scene.start('game'); //SENDS YOU TO GAME SCENE
         }, this);
+        //CREATING HOW TO PLAY BUTTON
+        const howToButton = this.add.text(20, 150, "How to Play", { font: "24px Arial", fill: "#0f0" });
+        howToButton.setInteractive();
+        howToButton.on('pointerdown', function () {
+            console.log("you clicked play!")
+            this.scene.start('howTo'); //SENDS YOU TO HOWTO SCENE
+        }, this);
     }
 };
 
-let gfx = null;
-let path = null;
-
-class sceneGame extends Phaser.Scene {
+class SceneGame extends Phaser.Scene {
     constructor() {
         super({ key: 'game' });
         this.tower = null;
@@ -53,10 +57,10 @@ class sceneGame extends Phaser.Scene {
         this.load.image("tower", "assets/spawner.png");
         this.load.image("bullet", "assets/star.png");
         
+        this.load.json('pathJSON', 'assets/path.json');
     }
 
     create() {
-        this.add.text(20, 20, "Game", { font: "24px Arial", fill: "#ffffff" });
         //Places background image
         let centerX = this.cameras.main.centerX;
         let centerY = this.cameras.main.centerY;
@@ -64,26 +68,16 @@ class sceneGame extends Phaser.Scene {
         this.background.displayWidth = this.sys.canvas.width;
         this.background.displayHeight = this.sys.canvas.height;
 
-
-        //Places path
-        gfx = this.add.graphics();
-        path = new Phaser.Curves.Path(0, 555);
-        path.lineTo(49, 534);
-        path.lineTo(188, 244);
-        path.lineTo(291, 185);
-        path.lineTo(398, 245);
-        path.lineTo(496, 362);
         
-        path.lineTo(595, 343);
-        path.lineTo(796, 160);
-
+        //Places path
+        let pathJSON = new Phaser.Curves.Path(this.cache.json.get('pathJSON'));
+        
         //Places spawner
-        let spawner = new WaveMachine(this);
-        spawner.startAutoWaves(1, 0.5);
-        //spawner.startWave(7, 0.5)
-
+        this.spawner = new WaveMachine(this, pathJSON);
+        this.spawner.startAutoWaves(5, 1);
+        
         this.tower = new Tower(this, 300, 300);
-
+        
         this.background.setInteractive();
         this.background.on('pointerdown', function (pointer) {
             console.log("you clicked the background!")
@@ -91,27 +85,29 @@ class sceneGame extends Phaser.Scene {
             let y = pointer.y;
             console.log(`${x}, ${y}`);
         }.bind(this));
-    }
-    update(time, delta) {
+        
         //Draws path
+        let gfx = this.add.graphics();
         gfx.clear();
         gfx.lineStyle(2, 0xffffff, 1);
-        path.draw(gfx);
+        pathJSON.draw(gfx);
 
-        this.tower.update(time, delta);
-
-    
     }
 
+    update(time, delta) {
+        //Draws path
+        this.tower.update(time, delta);
+        //this.spawner.update(time, delta);
+    }
 };
 
-class SceneTest extends Phaser.Scene {
+class SceneInstructions extends Phaser.Scene {
     constructor() {
-        super({ key: 'test' });
+        super({ key: 'howTo' });
 
     }
     preload() {
-        this.load.image('background', 'assets/map1.png');
+        this.load.image('background', 'assets/wendussy.jpg');
         console.log("preloaded deez nuts");
         
     }
@@ -125,123 +121,72 @@ class SceneTest extends Phaser.Scene {
     }
     update() {
     }
-}
-
+};
 
 var config = {
     type: Phaser.AUTO,
     width: 800,
     height: 600,
-    scene: [sceneBoot, sceneMainMenu, sceneGame, SceneTest]
+    scene: [SceneBoot, SceneMainMenu, SceneGame, SceneInstructions]
 };
 
 var game = new Phaser.Game(config);
 
-class Tower extends Phaser.GameObjects.Image{
-    constructor(scene, x, y, key = "tower") {
-        super(scene, x, y, key);
-        this.nextFire = 0;
-        this.cost = 100;
-        this.bullets = new Phaser.GameObjects.Group(scene);
-        this.setScale(.5);
-        console.log("Made a tower");
-        scene.add.existing(this);
-    }
-    fire() {
-        console.log("firing");
-        let bullet = new Bullet(this.scene, this.x, this.y, 5, 5);
-        this.bullets.add(bullet);
-    }
-    update(time, delta) {
-        if (time > this.nextFire) {
-            this.nextFire = time + 1000;
-            this.fire();
-        }
-
-        this.bullets.children.each(function (bullet) {
-            bullet.update(time, delta);
-        }.bind(this));
-    }
-}
-
-class Bullet extends Phaser.GameObjects.Image{
-    constructor(scene, x, y, dx, dy){
-        super(scene, x, y, "bullet");
-        this.speed = 600;
-        this.dx = dx;
-        this.dy = dy;
-        this.lifespan = 10000000;
-        this.setActive(true);
-        this.setVisible(true);
-        this.setScale(2);
-        scene.add.existing(this);
-        console.log("I am alive!");
-    }
-
-    update(time, delta) {
-        this.lifespan -= delta;
-        this.x += this.dx * (this.speed * delta);
-        this.y += this.dy * (this.speed * delta);
-        this.setPosition(this.x, this.y);
-        if (this.lifespan <= 0) {
-            this.setActive(false);
-            this.setVisible(false);
-        }
-    }
-}
-
 // ////////////////////////////////////////////////////////////////////////////////////////////////
 
-class Troop extends Phaser.GameObjects.GameObject {
+class Troop extends Phaser.GameObjects.PathFollower {
     
-    constructor(scene, x, y, key = 'troop') {
-        super(scene);
+    constructor(scene, path, x, y, key = 'troop') {
+        super(scene, path, x, y, key);
         this.scene = scene;
+        this.path = path;
         this.health;
         this.speed;
-        this.sprite = key;
-
-        this.bloonConfig = {
-            positionOnPath: true,
-            duration: 10000,
-            repeat: 0,
-            yoyo: false,
-            rotateToPath: false,
-            verticalAdjust: true
-        };
-        this.scene.add.follower(path, x, y, 'troop').startFollow(this.bloonConfig);
+        this.setScale(.5);
     }
 
-    
-}
+};
 
 class WaveMachine {
-    constructor(scene, secBetweenWaves = 5) {
+    constructor(scene, path, secBetweenWaves = 5, travelDurationSec = 21) {
         this.scene = scene;
         this.inProgress = false;
         this.isAuto = false;
-        this.milliBetweenWaves = secBetweenWaves * 1000;
+        this.secBetweenWaves = secBetweenWaves;
+        this.path = path;
         this.waveGroup;
         this.timer;
+        this.runChildUpdate = true;
+
+        this.bloonConfig = {
+            positionOnPath: true,
+            duration: travelDurationSec * 1000,
+            repeat: 0,
+            yoyo: false,
+            rotateToPath: true,
+            verticalAdjust: true,
+        };
     }
 
     startWave(roundNum, delaySec, quantity = this.fib(roundNum)) {
         console.log(`Starting wave ${roundNum} with ${quantity} bloons`);
         this.inProgress = true;
         let delayMilli = delaySec * 1000;
-        this.waveGroup = new Phaser.GameObjects.Group(this.scene);
+        this.waveGroup = new Wave(this.scene);
         this.timer = this.scene.time.addEvent({
             delay: delayMilli,
             callback: () => {
-                let troop = new Troop(this.scene, 50, 50);
+                let troop = new Troop(this.scene, this.path, -50, 0);
+                troop.startFollow(this.bloonConfig);
+                this.scene.add.existing(troop);
                 this.waveGroup.add(troop);
                 console.log('Spawned a troop');
                 if (this.timer.repeatCount === 0) {
                     this.inProgress = false;
                     if (this.isAuto) {
-                        // wait for 5 seconds after the timer finishes before starting the next wave
+                        // wait for set amount of seconds after the timer finishes before starting the next wave
                         this.scene.time.addEvent({
-                            delay: this.milliBetweenWaves,
+                            delay: this.secBetweenWaves * 1000,
                             callback: () => {
                                 this.startWave(roundNum + 1, delaySec);
                             }
@@ -275,22 +220,103 @@ class WaveMachine {
         }
         return this.fib(n - 1) + this.fib(n - 2);
     }
-}
+
+    update(time, delta) {
+        
+    }
+};
 
 // Might be completely redundant, will have to get popping of bloons working first
-class Wave {
+class Wave extends Phaser.GameObjects.Group {
     constructor(scene) {
+        super(scene);
         this.scene = scene;
-        this.waves = [];
-        this.tempwave = [];
     }
     
-    addToWave(troop) {
-        Tempwave.push(troop);
+    add(troop) {
+        super.add(troop);
+    }
+};
+
+class Player {
+    constructor(scene) {
+        this.scene = scene;
+        this.money = 100;
+        this.health = 100;
     }
 
-    endWave() {
-        this.wave.push(this.tempwave);
-        this.tempwave = [];
+    incrementMoney(amount) {
+        this.money += Math.abs(amount);
+    }
+
+    decrementMoney(amount) {
+        this.money -= Math.abs(amount);
+    }
+
+    setMoney(amount) {
+        this.money = amount;
+    }
+
+    incrementHealth(amount) {
+        this.health += Math.abs(amount);
+    }
+
+    decrementHealth(amount) {
+        this.health -= Math.abs(amount);
     }
 }
+
+// ////////////////////////////////////////////////////////////////////////////////////////////////
+
+class Tower extends Phaser.GameObjects.Image{
+    constructor(scene, x, y, key = "tower") {
+        super(scene, x, y, key);
+        this.nextFire = 0;
+        this.cost = 100;
+        this.bullets = new Phaser.GameObjects.Group(scene);
+        this.setScale(.5);
+        console.log("Made a tower");
+        scene.add.existing(this);
+    }
+    fire() {
+        //console.log("firing");
+        let bullet = new Bullet(this.scene, this.x, this.y, 5, 5);
+        this.bullets.add(bullet);
+    }
+    update(time, delta) {
+        if (time > this.nextFire) {
+            this.nextFire = time + 1000;
+            this.fire();
+        }
+
+        this.bullets.children.each(function (bullet) {
+            bullet.update(time, delta);
+        }.bind(this));
+    }
+};
+
+class Bullet extends Phaser.GameObjects.Image{
+    constructor(scene, x, y, dx, dy){
+        super(scene, x, y, "bullet");
+        this.speed = 600;
+        this.dx = dx;
+        this.dy = dy;
+        this.lifespan = 10000000;
+        this.setActive(true);
+        this.setVisible(true);
+        this.setScale(2);
+        scene.add.existing(this);
+        //console.log("I am alive!");
+    }
+
+    update(time, delta) {
+        this.lifespan -= delta;
+        this.x += this.dx * (this.speed * delta);
+        this.y += this.dy * (this.speed * delta);
+        this.setPosition(this.x, this.y);
+        if (this.lifespan <= 0) {
+            this.setActive(false);
+            this.setVisible(false);
+        }
+    }
+};
