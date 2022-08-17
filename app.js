@@ -18,7 +18,7 @@ class SceneMainMenu extends Phaser.Scene {
     }
 
     preload() {
-        this.load.image('background', 'assets/mainMenuTest.png');
+        // this.load.image('background', 'assets/mainMenuTest.png');
         console.log("HELLO I AM THE MAIN MENU SCENE");
     }
 
@@ -76,7 +76,7 @@ class SceneGame extends Phaser.Scene {
         this.spawner = new WaveMachine(this, pathJSON);
         this.spawner.startAutoWaves(5, 1);
         
-        this.tower = new Tower(this, 300, 300);
+        this.tower = new Tower(this, 300, 300, "tower", );
         
         this.background.setInteractive();
         this.background.on('pointerdown', function (pointer) {
@@ -268,54 +268,60 @@ class Player {
 
 // ////////////////////////////////////////////////////////////////////////////////////////////////
 
-class Tower extends Phaser.GameObjects.Image{
-    constructor(scene, x, y, key = "tower") {
-        super(scene, x, y, key);
-        this.nextFire = 0;
-        this.cost = 100;
-        this.bullets = new Phaser.Physics.Arcade.Group(scene);
+// A Bullet class that a Tower can shoot
+
+class Bullet extends Phaser.GameObjects.Sprite {
+    constructor(scene, x, y, key, frame) {
+        super(scene, x, y, key, frame);
+        this.scene = scene;
+        this.speed = Phaser.Math.GetSpeed(400, 1);
         this.setScale(.5);
-        console.log("Made a tower");
-        scene.add.existing(this);
-    }
-    fire() {
-        console.log("firing");
-        let bullet = new Bullet(this.scene, this.x, this.y, 5, 5);
-        // this.bullets.add(bullet);
+        this.setOrigin(0, 0);
+        this.setRotation(Phaser.Math.Between(0, 360));
+        this.setActive(false);
+        this.setVisible(false);
+        this.scene.add.existing(this);
     }
     update(time, delta) {
-        if (time > this.nextFire) {
-            this.nextFire = time + 1000;
-            this.fire();
-        }
-        this.bullets.children.each(function (bullet) {
-            bullet.update(time, delta);
-        }.bind(this));
-    }
-};
-
-class Bullet extends Phaser.Physics.Arcade.Sprite {
-    constructor(scene, x, y, dx, dy){
-        super(scene, x, y, "bullet");
-        this.speed = 600;
-        this.dx = dx;
-        this.dy = dy;
-        this.lifespan = 10000000;
-        this.setActive(true);
-        this.setVisible(true);
-        this.setScale(.75);
-        scene.add.existing(this);
-        //console.log("I am alive!");
-    }
-
-    update(time, delta) {
-        this.lifespan -= delta;
-        this.x += this.dx * (this.speed * delta);
-        this.y += this.dy * (this.speed * delta);
-        this.setPosition(this.x, this.y);
-        if (this.lifespan <= 0) {
+        this.x += this.speed * delta;
+        if (this.x > this.scene.sys.canvas.width) {
             this.setActive(false);
             this.setVisible(false);
         }
     }
-};
+}
+
+// A tower class that can shoot bullets to any nearby troops
+class Tower extends Phaser.GameObjects.Sprite {
+    constructor(scene, x, y, key, frame) {
+        super(scene, x, y, key, frame);
+        this.scene = scene;
+        this.setScale(.5);
+        this.setOrigin(0, 0);
+        this.setRotation(Phaser.Math.Between(0, 360));
+        this.setActive(true);
+        this.setVisible(true);
+        this.scene.add.existing(this);
+        this.bulletSpeed = Phaser.Math.GetSpeed(400, 1);
+        this.bullet = new Bullet(this.scene, this.x, this.y, 'bullet');
+        this.bullet.setActive(false);
+        this.bullet.setVisible(false);
+        this.scene.add.existing(this.bullet);
+        this.shootTimer = this.scene.time.addEvent({
+            delay: 1250,
+            callback: () => {
+                this.shoot();
+            },
+            loop: true
+        });
+    }
+    shoot() {
+        this.bullet.setActive(true);
+        this.bullet.setVisible(true);
+        this.bullet.setPosition(this.x, this.y);
+        this.bullet.setRotation(this.rotation);
+    }
+    update(time, delta) {
+        this.bullet.update(time, delta);
+    }
+}
