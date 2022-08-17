@@ -47,6 +47,7 @@ class SceneGame extends Phaser.Scene {
     constructor() {
         super({ key: 'game' });
         this.player = new Player(this);
+        this.towers = new TowerGroup(this);
 
     }
 
