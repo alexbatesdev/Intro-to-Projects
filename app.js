@@ -273,29 +273,28 @@ class Tower extends Phaser.GameObjects.Image{
         super(scene, x, y, key);
         this.nextFire = 0;
         this.cost = 100;
-        this.bullets = new Phaser.GameObjects.Group(scene);
+        this.bullets = new Phaser.Physics.Arcade.Group(scene);
         this.setScale(.5);
         console.log("Made a tower");
         scene.add.existing(this);
     }
     fire() {
-        //console.log("firing");
+        console.log("firing");
         let bullet = new Bullet(this.scene, this.x, this.y, 5, 5);
-        this.bullets.add(bullet);
+        // this.bullets.add(bullet);
     }
     update(time, delta) {
         if (time > this.nextFire) {
             this.nextFire = time + 1000;
             this.fire();
         }
-
         this.bullets.children.each(function (bullet) {
             bullet.update(time, delta);
         }.bind(this));
     }
 };
 
-class Bullet extends Phaser.GameObjects.Image{
+class Bullet extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, x, y, dx, dy){
         super(scene, x, y, "bullet");
         this.speed = 600;
@@ -304,7 +303,7 @@ class Bullet extends Phaser.GameObjects.Image{
         this.lifespan = 10000000;
         this.setActive(true);
         this.setVisible(true);
-        this.setScale(2);
+        this.setScale(.75);
         scene.add.existing(this);
         //console.log("I am alive!");
     }
