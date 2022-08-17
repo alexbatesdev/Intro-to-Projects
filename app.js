@@ -46,7 +46,7 @@ class SceneMainMenu extends Phaser.Scene {
 class SceneGame extends Phaser.Scene {
     constructor() {
         super({ key: 'game' });
-        this.tower = null;
+        this.towers = new TowerGroup(this);
     }
 
     preload() {
@@ -75,8 +75,11 @@ class SceneGame extends Phaser.Scene {
         //Places spawner
         this.spawner = new WaveMachine(this, pathJSON);
         this.spawner.startAutoWaves(5, 1);
-        
-        this.tower = new Tower(this, 300, 300, "tower", );
+        //adds tower group
+        this.towers.add(new Tower(this, 300, 300, "tower", ));
+        this.towers.add(new Tower(this, 400, 350, "tower", ));
+        this.towers.add(new Tower(this, 500, 400, "tower", ));
+
         
         this.background.setInteractive();
         this.background.on('pointerdown', function (pointer) {
@@ -95,9 +98,8 @@ class SceneGame extends Phaser.Scene {
     }
 
     update(time, delta) {
-        //Draws path
-        this.tower.update(time, delta);
         //this.spawner.update(time, delta);
+        this.towers.fireAll(time, delta);
     }
 };
 
@@ -296,9 +298,9 @@ class Tower extends Phaser.GameObjects.Sprite {
     constructor(scene, x, y, key, frame) {
         super(scene, x, y, key, frame);
         this.scene = scene;
-        this.setScale(.5);
+        this.setScale(.35);
         this.setOrigin(0, 0);
-        this.setRotation(Phaser.Math.Between(0, 360));
+        // this.setRotation(Phaser.Math.Between(0, 360));
         this.setActive(true);
         this.setVisible(true);
         this.scene.add.existing(this);
@@ -325,3 +327,27 @@ class Tower extends Phaser.GameObjects.Sprite {
         this.bullet.update(time, delta);
     }
 }
+
+// a function to place a tower on the map
+function placeTower(scene, x, y) {
+    let tower = new Tower(scene, x, y, 'tower');
+    scene.add.existing(tower);
+}
+
+
+// A class that holls all the Towers
+class TowerGroup extends Phaser.GameObjects.Group {
+    constructor(scene) {
+        super(scene);
+        this.scene = scene;
+    }
+    add(tower) {
+        super.add(tower);
+    }
+    fireAll(time, delta) {
+        this.getChildren().forEach(tower => {
+            tower.update(time, delta);
+        });
+    }
+}
+
