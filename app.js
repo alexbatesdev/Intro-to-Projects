@@ -46,7 +46,16 @@ class SceneMainMenu extends Phaser.Scene {
 class SceneGame extends Phaser.Scene {
     constructor() {
         super({ key: 'game' });
-        this.tower = null;
+        this.player = new Player(this);
+
+    }
+
+    decrementHealth(i) {
+        this.player.health -= Math.abs(i);
+    }
+
+    incrementMoney(i) {
+        this.player.money += Math.abs(i);
     }
 
     preload() {
@@ -74,23 +83,26 @@ class SceneGame extends Phaser.Scene {
         
         //Places spawner
         this.spawner = new WaveMachine(this, pathJSON);
-        this.spawner.startAutoWaves(5, 1);
+        this.spawner.startAutoWaves(1, 1);
         
         this.tower = new Tower(this, 300, 300);
         
+        //This event prints the coordinates of the mouse when you click on the game
         this.background.setInteractive();
         this.background.on('pointerdown', function (pointer) {
             console.log("you clicked the background!")
             let x = pointer.x;
             let y = pointer.y;
             console.log(`${x}, ${y}`);
+            console.log(this.player.health);
+            console.log(this.player.money);
         }.bind(this));
         
         //Draws path
         let gfx = this.add.graphics();
         gfx.clear();
         gfx.lineStyle(2, 0xffffff, 1);
-        pathJSON.draw(gfx);
+        //pathJSON.draw(gfx);
 
     }
 
@@ -143,12 +155,32 @@ class Troop extends Phaser.GameObjects.PathFollower {
         this.health;
         this.speed;
         this.setScale(.5);
+        this.bloonConfig = {
+            positionOnPath: true,
+            duration: 20 * 1000,
+            repeat: 0,
+            yoyo: false,
+            rotateToPath: true,
+            verticalAdjust: true,
+            onComplete: this.complete,
+            onCompleteScope: this,
+            onCompleteParams: [this.scene]
+        };
+
+        super.startFollow(this.bloonConfig);
+    }
+
+    complete(tween, targets, scene) {
+        console.log("troop got in");
+        this.destroy();
+        scene.decrementHealth(1);
+        scene.incrementMoney(Phaser.Math.Between(2, 5));
     }
 
 };
 
-class WaveMachine {
-    constructor(scene, path, secBetweenWaves = 5, travelDurationSec = 21) {
+class WaveMachine { //Extend phaser group?
+    constructor(scene, path, secBetweenWaves = 5, travelDurationSec = 20) {
         this.scene = scene;
         this.inProgress = false;
         this.isAuto = false;
@@ -158,31 +190,31 @@ class WaveMachine {
         this.timer;
         this.runChildUpdate = true;
 
-        this.bloonConfig = {
-            positionOnPath: true,
-            duration: travelDurationSec * 1000,
-            repeat: 0,
-            yoyo: false,
-            rotateToPath: true,
-            verticalAdjust: true,
-        };
+        
     }
 
-    startWave(roundNum, delaySec, quantity = this.fib(roundNum)) {
+    startWave(roundNum, delaySec, quantity = this.roundCalc(roundNum)) {
+        let delayMilli = delaySec * 1000;
+
         console.log(`Starting wave ${roundNum} with ${quantity} bloons`);
         this.inProgress = true;
-        let delayMilli = delaySec * 1000;
         this.waveGroup = new Wave(this.scene);
+        
         this.timer = this.scene.time.addEvent({
             delay: delayMilli,
             callback: () => {
+
                 let troop = new Troop(this.scene, this.path, -50, 0);
-                troop.startFollow(this.bloonConfig);
                 this.scene.add.existing(troop);
                 this.waveGroup.add(troop);
-                console.log('Spawned a troop');
+                //console.log('Spawned a troop');
+
+
                 if (this.timer.repeatCount === 0) {
                     this.inProgress = false;
+                    this.waveGroup.destroy();
+
+                    
                     if (this.isAuto) {
                         // wait for set amount of seconds after the timer finishes before starting the next wave
                         this.scene.time.addEvent({
@@ -214,19 +246,26 @@ class WaveMachine {
     }
 
     // a function that takes in an input and returns the value of the fibbonaci sequence at that value
+    //Way too fast round calc
     fib(n) {
         if (n < 2) {
             return n;
         }
         return this.fib(n - 1) + this.fib(n - 2);
     }
+    //untested round calc
+    roundCalc(n) {
+        return Phaser.Math.RoundTo(5 * Phaser.Math.Easing.Sine.In(0.3 * n)) + 5;//y=5\sin\left(0.3x\right)+5
+    }
+    
+    
 
     update(time, delta) {
         
     }
 };
 
-// Might be completely redundant, will have to get popping of bloons working first
+// 
 class Wave extends Phaser.GameObjects.Group {
     constructor(scene) {
         super(scene);
@@ -245,11 +284,11 @@ class Player {
         this.health = 100;
     }
 
-    incrementMoney(amount) {
+    static incrementMoney(amount) {
         this.money += Math.abs(amount);
     }
 
-    decrementMoney(amount) {
+    static decrementMoney(amount) {
         this.money -= Math.abs(amount);
     }
 
@@ -257,12 +296,16 @@ class Player {
         this.money = amount;
     }
 
-    incrementHealth(amount) {
+    static incrementHealth(amount) {
         this.health += Math.abs(amount);
     }
 
-    decrementHealth(amount) {
+   static decrementHealth(amount) {
         this.health -= Math.abs(amount);
+    }
+
+    setHealth(amount) {
+        this.health = amount;
     }
 }
 
