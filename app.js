@@ -244,7 +244,6 @@ class WaveMachine { //Extend phaser group?
 
     startWave(roundNum, delaySec, quantity = this.roundCalc(roundNum)) {
         let delayMilli = delaySec * 1000;
-
         console.log(`Starting wave ${roundNum} with ${quantity} bloons`);
         this.inProgress = true;
         this.waveGroup = new Wave(this.scene);
@@ -384,6 +383,9 @@ class Bullet extends Phaser.GameObjects.Sprite {
 }
 
 // A tower class that can shoot bullets to any nearby troops
+// Tower can shoot any troop on the scence within a certain range
+// Tower will detect if there is a troop nearby and will shoot at it
+// Tower will only shoot at one troop at a time
 class Tower extends Phaser.GameObjects.Sprite {
     constructor(scene, x, y, key, frame) {
         super(scene, x, y, key, frame);
@@ -407,7 +409,7 @@ class Tower extends Phaser.GameObjects.Sprite {
             loop: true
         });
     }
-    shoot() {
+    shoot(){
         this.bullet.setActive(true);
         this.bullet.setVisible(true);
         this.bullet.setPosition(this.x, this.y);
@@ -417,14 +419,6 @@ class Tower extends Phaser.GameObjects.Sprite {
         this.bullet.update(time, delta);
     }
 }
-
-// a function to place a tower on the map
-function placeTower(scene, x, y) {
-    let tower = new Tower(scene, x, y, 'tower');
-    scene.add.existing(tower);
-}
-
-
 // A class that holls all the Towers
 class TowerGroup extends Phaser.GameObjects.Group {
     constructor(scene) {
