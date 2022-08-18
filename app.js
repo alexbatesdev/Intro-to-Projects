@@ -56,24 +56,32 @@ class SceneStore extends Phaser.Scene {
        
         console.log("HELLO I AM THE STORE SCENE");
         this.load.image('UI', 'assets/tempstore.png');
+        this.load.image('tower1', 'assets/spawner.png');
         
     }    
     create() {
         var MenuIsOpen = true;
         //this.add.image(400,300, 'UI');
         this.storeMenu = this.add.image(400,300, 'UI');
+        this.tower1 = this.add.image(676, 158, 'tower1').setScale(0.5);
         this.storeButton = this.add.text(575, 0, "Shop", { font: "20px Berlin Sans FB Demi", fill: "#FFFFFF" });
         this.storeButton.setInteractive();
+        this.tower1.setInteractive();
+        this.tower1.on('pointerdown', function () {
+            console.log("you clicked tower1!")
+        }, this);
         this.storeButton.on('pointerdown', function(){
             console.log("you clicked shop!")
             if(MenuIsOpen){
                 this.storeMenu.setPosition(570, 300);
                 this.storeButton.setPosition(745, 0);
+                this.tower1.setPosition(850, 300);
                 MenuIsOpen = false;
             }
             else{
                 this.storeMenu.setPosition(400, 300);
                 this.storeButton.setPosition(575, 0);
+                this.tower1.setPosition(676, 158);
                 MenuIsOpen = true;
             }
         }, this);
