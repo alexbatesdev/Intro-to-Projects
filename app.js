@@ -245,7 +245,7 @@ class WaveMachine {
         this.isAuto = false;
         this.secBetweenWaves = secBetweenWaves;
         this.path = path;
-        this.waveGroup= new Wave(this.scene);
+        this.waveGroup = new Wave(this.scene);
         this.timer;
         this.runChildUpdate = true;
 
@@ -268,7 +268,6 @@ class WaveMachine {
 
                 if (this.timer.repeatCount === 0) {
                     this.inProgress = false;
-                    this.waveGroup.destroy();
 
                     
                     if (this.isAuto) {
