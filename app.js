@@ -31,7 +31,10 @@ class SceneMainMenu extends Phaser.Scene {
         startButton.setInteractive();
         startButton.on('pointerdown', function () {
             console.log("you clicked play!")
-            this.scene.start('game'); //SENDS YOU TO GAME SCENE
+            this.scene
+            .launch('game')
+            .launch('store')
+            .remove(); //SENDS YOU TO GAME SCENE
         }, this);
         //CREATING HOW TO PLAY BUTTON
         const howToButton = this.add.text(20, 150, "How to Play", { font: "24px Arial", fill: "#0f0" });
@@ -42,6 +45,50 @@ class SceneMainMenu extends Phaser.Scene {
         }, this);
     }
 };
+class SceneStore extends Phaser.Scene {
+    constructor() {
+        super({ key: 'store',
+                width: 200,
+                height: 600 });
+       
+    }
+    preload(){
+       
+        console.log("HELLO I AM THE STORE SCENE");
+        this.load.image('UI', 'assets/tempstore.png');
+        this.load.image('tower1', 'assets/spawner.png');
+        
+    }    
+    create() {
+        var MenuIsOpen = true;
+        //this.add.image(400,300, 'UI');
+        this.storeMenu = this.add.image(400,300, 'UI');
+        this.tower1 = this.add.image(676, 158, 'tower1').setScale(0.5);
+        this.storeButton = this.add.text(575, 0, "Shop", { font: "20px Berlin Sans FB Demi", fill: "#FFFFFF" });
+        this.storeButton.setInteractive();
+        this.tower1.setInteractive();
+        this.tower1.on('pointerdown', function () {
+            console.log("you clicked tower1!")
+        }, this);
+        this.storeButton.on('pointerdown', function(){
+            console.log("you clicked shop!")
+            if(MenuIsOpen){
+                this.storeMenu.setPosition(570, 300);
+                this.storeButton.setPosition(745, 0);
+                this.tower1.setPosition(850, 300);
+                MenuIsOpen = false;
+            }
+            else{
+                this.storeMenu.setPosition(400, 300);
+                this.storeButton.setPosition(575, 0);
+                this.tower1.setPosition(676, 158);
+                MenuIsOpen = true;
+            }
+        }, this);
+    } 
+
+    };
+
 
 class SceneGame extends Phaser.Scene {
     constructor() {
@@ -143,7 +190,7 @@ var config = {
     type: Phaser.AUTO,
     width: 800,
     height: 600,
-    scene: [SceneBoot, SceneMainMenu, SceneGame, SceneInstructions]
+    scene: [SceneBoot, SceneMainMenu, SceneGame, SceneInstructions, SceneStore]
 };
 
 var game = new Phaser.Game(config);
@@ -207,7 +254,6 @@ class WaveMachine {
 
     startWave(roundNum, delaySec, quantity = this.roundCalc(roundNum)) {
         let delayMilli = delaySec * 1000;
-
         console.log(`Starting wave ${roundNum} with ${quantity} bloons`);
         this.inProgress = true;
         this.timer = this.scene.time.addEvent({
@@ -345,6 +391,9 @@ class Bullet extends Phaser.GameObjects.Sprite {
 }
 
 // A tower class that can shoot bullets to any nearby troops
+// Tower can shoot any troop on the scence within a certain range
+// Tower will detect if there is a troop nearby and will shoot at it
+// Tower will only shoot at one troop at a time
 class Tower extends Phaser.GameObjects.Sprite {
     constructor(scene, x, y, key, frame) {
         super(scene, x, y, key, frame);
@@ -368,7 +417,7 @@ class Tower extends Phaser.GameObjects.Sprite {
             loop: true
         });
     }
-    shoot() {
+    shoot(){
         this.bullet.setActive(true);
         this.bullet.setVisible(true);
         this.bullet.setPosition(this.x, this.y);
@@ -378,14 +427,6 @@ class Tower extends Phaser.GameObjects.Sprite {
         this.bullet.update(time, delta);
     }
 }
-
-// a function to place a tower on the map
-function placeTower(scene, x, y) {
-    let tower = new Tower(scene, x, y, 'tower');
-    scene.add.existing(tower);
-}
-
-
 // A class that holls all the Towers
 class TowerGroup extends Phaser.GameObjects.Group {
     constructor(scene) {
