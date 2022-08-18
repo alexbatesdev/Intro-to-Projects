@@ -31,7 +31,10 @@ class SceneMainMenu extends Phaser.Scene {
         startButton.setInteractive();
         startButton.on('pointerdown', function () {
             console.log("you clicked play!")
-            this.scene.start('game'); //SENDS YOU TO GAME SCENE
+            this.scene
+            .launch('game')
+            .launch('store')
+            .remove(); //SENDS YOU TO GAME SCENE
         }, this);
         //CREATING HOW TO PLAY BUTTON
         const howToButton = this.add.text(20, 150, "How to Play", { font: "24px Arial", fill: "#0f0" });
@@ -42,6 +45,42 @@ class SceneMainMenu extends Phaser.Scene {
         }, this);
     }
 };
+class SceneStore extends Phaser.Scene {
+    constructor() {
+        super({ key: 'store',
+                width: 200,
+                height: 600 });
+       
+    }
+    preload(){
+       
+        console.log("HELLO I AM THE STORE SCENE");
+        this.load.image('UI', 'assets/tempstore.png');
+        
+    }    
+    create() {
+        var MenuIsOpen = true;
+        //this.add.image(400,300, 'UI');
+        this.storeMenu = this.add.image(400,300, 'UI');
+        this.storeButton = this.add.text(575, 0, "Shop", { font: "20px Berlin Sans FB Demi", fill: "#FFFFFF" });
+        this.storeButton.setInteractive();
+        this.storeButton.on('pointerdown', function(){
+            console.log("you clicked shop!")
+            if(MenuIsOpen){
+                this.storeMenu.setPosition(570, 300);
+                this.storeButton.setPosition(745, 0);
+                MenuIsOpen = false;
+            }
+            else{
+                this.storeMenu.setPosition(400, 300);
+                this.storeButton.setPosition(575, 0);
+                MenuIsOpen = true;
+            }
+        }, this);
+    } 
+
+    };
+
 
 class SceneGame extends Phaser.Scene {
     constructor() {
@@ -141,7 +180,7 @@ var config = {
     type: Phaser.AUTO,
     width: 800,
     height: 600,
-    scene: [SceneBoot, SceneMainMenu, SceneGame, SceneInstructions]
+    scene: [SceneBoot, SceneMainMenu, SceneGame, SceneInstructions, SceneStore]
 };
 
 var game = new Phaser.Game(config);
