@@ -68,6 +68,8 @@ class SceneGame extends Phaser.Scene {
         this.load.image("bullet", "assets/star.png");
         
         this.load.json('pathJSON', 'assets/path.json');
+
+        
     }
 
     create() {
@@ -176,19 +178,27 @@ class Troop extends Phaser.GameObjects.PathFollower {
         console.log("troop got in");
         this.destroy();
         scene.decrementHealth(1);
-        scene.incrementMoney(Phaser.Math.Between(2, 5));
+        //scene.incrementMoney(Phaser.Math.Between(2, 5));
+    }
+
+    getPos() {
+        let position = {
+            x: this.x,
+            y: this.y
+        }
+        return position;
     }
 
 };
 
-class WaveMachine { //Extend phaser group?
+class WaveMachine {
     constructor(scene, path, secBetweenWaves = 5, travelDurationSec = 20) {
         this.scene = scene;
         this.inProgress = false;
         this.isAuto = false;
         this.secBetweenWaves = secBetweenWaves;
         this.path = path;
-        this.waveGroup;
+        this.waveGroup= new Wave(this.scene);
         this.timer;
         this.runChildUpdate = true;
 
@@ -200,8 +210,6 @@ class WaveMachine { //Extend phaser group?
 
         console.log(`Starting wave ${roundNum} with ${quantity} bloons`);
         this.inProgress = true;
-        this.waveGroup = new Wave(this.scene);
-        
         this.timer = this.scene.time.addEvent({
             delay: delayMilli,
             callback: () => {
