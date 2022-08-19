@@ -113,7 +113,6 @@ class SceneGame extends Phaser.Scene {
         this.load.image("troop", "assets/troop.png");
         this.load.image("tower", "assets/spawner.png");
         this.load.image("bullet", "assets/star.png");
-        
         this.load.json('pathJSON', 'assets/path.json');
 
         
@@ -190,6 +189,9 @@ var config = {
     type: Phaser.AUTO,
     width: 800,
     height: 600,
+    physics: {
+        default: 'arcade',
+    },
     scene: [SceneBoot, SceneMainMenu, SceneGame, SceneInstructions, SceneStore]
 };
 
@@ -366,13 +368,121 @@ class Player {
 
 // ////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+
+
 // A Bullet class that a Tower can shoot
 
 class Bullet extends Phaser.GameObjects.Sprite {
     constructor(scene, x, y, key, frame) {
         super(scene, x, y, key, frame);
         this.scene = scene;
+        this.position = {
+            x: this.x,
+            y: this.y
+        }
         this.speed = Phaser.Math.GetSpeed(400, 1);
+        let body = {
+            acceleration: Phaser.Math.Vector2(300, 300),
+            allowDrag: false,
+            allowGravity: false,
+            allowRotation: true,
+            angle: 0,
+            angularAcceleration: 0,
+            angularDrag: 0,
+            angularVelocity: 0,
+            blocked: {
+                down: false,
+                left: false,
+                right: false,
+                up: false
+            },
+            bottom: 0,
+            bounce: Phaser.Math.Vector2(),
+            center: Phaser.Math.Vector2(),
+            checkCollision: {
+                down: true,
+                left: true,
+                right: true,
+                up: true
+            },
+            collideWorldBounds: false,
+            customWorldBounds: Phaser.Geom.Rectangle(),
+            customSeparateX: false,
+            customSeparateY: false,
+            debugBodyColor: 0,
+            debugShowVelocity: false,
+            deltaMax: Phaser.Math.Vector2(),
+            drag: Phaser.Math.Vector2(),
+            embedded: false,
+            enable: true,
+            facing: 90,
+            friction: Phaser.Math.Vector2(),
+            gameObejct: this,
+            gravity: Phaser.Math.Vector2(),
+            halfHeight: 15,
+            halfWidth: 15,
+            height: 30,
+            immovable: false,
+            isCircle: false,
+            left: 0,
+            mass: 1,
+            maxAngular: 1000,
+            maxSpeed: -1,
+            maxVelocity: Phaser.Math.Vector2(),
+            moves: true,
+            newVelocity: Phaser.Math.Vector2(),
+            offSet: Phaser.Math.Vector2(),
+            onCollide: false,
+            onOverlap: false,
+            onWorldBounds: false,
+            overlapR: 0,
+            overlapX: 0,
+            overlapY: 0,
+            physicsType: 0,
+            position: Phaser.Math.Vector2(),
+            preRotation: 0,
+            prev: Phaser.Math.Vector2(),
+            prevFrame: Phaser.Math.Vector2(),
+            pushAble: false,
+            radius: 0,
+            right: 0,
+            rotation: 0,
+            sourceHeight: 24,
+            sourceWidth: 22,
+            speed: 0,
+            syncBounds: false,
+            top: 0,
+            touching: {
+                down: false,
+                left: false,
+                right: false,
+                up: false
+            },
+            tranform: {
+                x: this.x,
+                y: this.y,
+                rotation: this.angle,
+                scaleX: this.scaleX,
+                scaleY: this.scaleY,
+                displayOriginX: this.displayOriginX,
+                displayOriginY: this.displayOriginY
+            },
+            useDamping: false,
+            velocity: Phaser.Math.Vector2(),
+            wasTouching: {
+                down: false,
+                left: false,
+                right: false,
+                up: false
+            },
+            width: 22,
+            world: this.scene,
+            worldBounce: null,
+            x: this.x,
+            y: this.y   
+        }
+        this.body = new Phaser.Physics.Arcade.Body(this.scene, body);
         this.setScale(.5);
         this.setOrigin(0, 0);
         this.setRotation(Phaser.Math.Between(0, 360));
@@ -389,6 +499,8 @@ class Bullet extends Phaser.GameObjects.Sprite {
     }
 }
 
+// ////////////////////////////////////////////////////////////////////////////////////////////////
+
 // A tower class that can shoot bullets to any nearby troops
 // Tower can shoot any troop on the scence within a certain range
 // Tower will detect if there is a troop nearby and will shoot at it
@@ -399,6 +511,7 @@ class Tower extends Phaser.GameObjects.Sprite {
         this.scene = scene;
         this.setScale(.35);
         this.setOrigin(0, 0);
+        this.arcadePh = Phaser.Physics.Arcade.ArcadePhysics(this.scene.physics);
         // this.setRotation(Phaser.Math.Between(0, 360));
         this.setActive(true);
         this.setVisible(true);
@@ -417,13 +530,22 @@ class Tower extends Phaser.GameObjects.Sprite {
         });
     }
     shoot(){
+        this.findTarget();
         this.bullet.setActive(true);
         this.bullet.setVisible(true);
         this.bullet.setPosition(this.x, this.y);
+        this.arcadePh.moveToObject(this.bullet, this.target, this.bulletSpeed);
         this.bullet.setRotation(this.rotation);
+        this.bullet.body.setVelocity(300, 300);
     }
     update(time, delta) {
         this.bullet.update(time, delta);
+    }
+    findTarget(){
+        let target = this.scene.physics.overlapCirc(this.x, this.y, this.range);
+        if(target){
+            this.target = target;
+        }
     }
 }
 // A class that holls all the Towers
