@@ -511,9 +511,9 @@ class Tower extends Phaser.GameObjects.Sprite {
         this.scene = scene;
         this.setScale(.35);
         this.setOrigin(0, 0);
+        this.setActive(true);
         this.arcadePh = Phaser.Physics.Arcade.ArcadePhysics(this.scene.physics);
         // this.setRotation(Phaser.Math.Between(0, 360));
-        this.setActive(true);
         this.setVisible(true);
         this.scene.add.existing(this);
         this.bulletSpeed = Phaser.Math.GetSpeed(400, 1);
