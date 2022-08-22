@@ -236,6 +236,10 @@ class Troop extends Phaser.GameObjects.PathFollower {
         return position;
     }
 
+    getTroop() {
+        return this;
+    }
+
 };
 
 class WaveMachine {
@@ -253,6 +257,7 @@ class WaveMachine {
     }
 
     startWave(roundNum, delaySec, quantity = this.roundCalc(roundNum)) {
+        this.getTroop(0);
         let delayMilli = delaySec * 1000;
         console.log(`Starting wave ${roundNum} with ${quantity} bloons`);
         this.inProgress = true;
@@ -310,17 +315,23 @@ class WaveMachine {
     }
     //untested round calc
     roundCalc(n) {
-        return Phaser.Math.RoundTo(5 * Phaser.Math.Easing.Sine.In(0.3 * n)) + 5;//y=5\sin\left(0.3x\right)+5
+        return 5 * n;
     }
     
-    
+    getTroop(i) {
+        try {
+            return this.waveGroup.children.entries[i].getTroop();
+        } catch (error) {
+            return null;
+        }
+    }
 
     update(time, delta) {
-        
+
     }
 };
 
-// 
+
 class Wave extends Phaser.GameObjects.Group {
     constructor(scene) {
         super(scene);
