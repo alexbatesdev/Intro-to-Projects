@@ -45,6 +45,7 @@ class SceneMainMenu extends Phaser.Scene {
         }, this);
     }
 };
+
 class SceneStore extends Phaser.Scene {
     constructor() {
         super({ key: 'store',
@@ -53,7 +54,7 @@ class SceneStore extends Phaser.Scene {
        
     }
     preload(){
-       
+        
         console.log("HELLO I AM THE STORE SCENE");
         this.load.image('UI', 'assets/tempstore.png');
         this.load.image('tower1', 'assets/spawner.png');
@@ -87,7 +88,7 @@ class SceneStore extends Phaser.Scene {
         }, this);
     } 
 
-    };
+};
 
 
 class SceneGame extends Phaser.Scene {
@@ -96,6 +97,8 @@ class SceneGame extends Phaser.Scene {
         this.player = new Player(this);
         this.towers = new TowerGroup(this);
 
+        this.plrHealthText;
+        this.plrMoneyText;
     }
 
     decrementHealth(i) {
@@ -113,6 +116,9 @@ class SceneGame extends Phaser.Scene {
         this.load.image("troop", "assets/troop.png");
         this.load.image("tower", "assets/spawner.png");
         this.load.image("bullet", "assets/star.png");
+
+        this.load.image('coin', 'assets/TrumpCoin.png');
+        this.load.image('health', 'assets/anatomical-heart.png');
         
         this.load.json('pathJSON', 'assets/path.json');
 
@@ -127,6 +133,11 @@ class SceneGame extends Phaser.Scene {
         this.background.displayWidth = this.sys.canvas.width;
         this.background.displayHeight = this.sys.canvas.height;
 
+        //Places ui stuff
+        this.coin = this.add.image(30, 25, "coin").setScale(.10); 
+        this.health = this.add.image(30, 65, "health").setScale(.33);
+        this.plrHealthText = this.add.text(60, 10, this.player.money, { font: "24px Arial", fill: "#ffffff" });
+        this.plrMoneyText = this.add.text(60, 50, this.player.health, { font: "24px Arial", fill: "#ffffff" });
         
         //Places path
         let pathJSON = new Phaser.Curves.Path(this.cache.json.get('pathJSON'));
@@ -155,12 +166,14 @@ class SceneGame extends Phaser.Scene {
         gfx.clear();
         gfx.lineStyle(2, 0xffffff, 1);
         //pathJSON.draw(gfx);
-
+        
     }
 
     update(time, delta) {
         //this.spawner.update(time, delta);
         this.towers.fireAll(time, delta);
+        this.plrHealthText.setText(this.player.money);
+        this.plrMoneyText.setText(this.player.health);
     }
 };
 
