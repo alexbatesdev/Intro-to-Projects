@@ -62,6 +62,7 @@ class SceneStore extends Phaser.Scene {
     }    
     create() {
         var MenuIsOpen = true;
+        var gameScene = this.scene.get('game');
         //this.add.image(400,300, 'UI');
         this.storeMenu = this.add.image(400,300, 'UI');
         this.tower1 = this.add.image(676, 158, 'tower1').setScale(0.5);
@@ -70,6 +71,7 @@ class SceneStore extends Phaser.Scene {
         this.tower1.setInteractive();
         this.tower1.on('pointerdown', function () {
             console.log("you clicked tower1!")
+            placeTower(gameScene, Math.floor(Math.random() * 800), Math.floor(Math.random() * 600));
         }, this);
         this.storeButton.on('pointerdown', function(){
             console.log("you clicked shop!")
@@ -464,5 +466,11 @@ class TowerGroup extends Phaser.GameObjects.Group {
             tower.update(time, delta);
         });
     }
+}
+
+function placeTower(scene, x, y) {
+    let tower = new Tower(scene, x, y, 'tower');
+    scene.add.existing(tower);
+    scene.towers.add(tower);
 }
 
