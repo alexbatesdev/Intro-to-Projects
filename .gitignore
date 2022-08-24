@@ -1,6 +1,7 @@
 # Git ignore
 Trello.url
 readme.md
+settings.json
 
 # Template from https://github.com/github/gitignore/blob/main/Node.gitignore
 
