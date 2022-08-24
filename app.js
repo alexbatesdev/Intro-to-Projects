@@ -18,16 +18,23 @@ class SceneMainMenu extends Phaser.Scene {
     }
 
     preload() {
-        // this.load.image('background', 'assets/mainMenuTest.png');
+        this.load.image('background', 'assets/sky.png');
         console.log("HELLO I AM THE MAIN MENU SCENE");
     }
 
     create() {
 
+        let centerX = this.cameras.main.centerX;
+        let centerY = this.cameras.main.centerY;
+        this.background = this.add.image(centerX, centerY, "background").setOrigin(.5, .5);
+        // Based on your game size, it may "stretch" and distort.
+        this.background.displayWidth = this.sys.canvas.width;
+        this.background.displayHeight = this.sys.canvas.height;
+
         this.add.image(400, 300, 'background');
         this.add.text(20, 20, "Main Menu", { font: "24px Arial", fill: "#ffffff" });
         //CREATING PLAY BUTTON
-        const startButton = this.add.text(20, 100, "Play", { font: "24px Arial", fill: "#0f0" });
+        const startButton = this.add.text(20, 100, "Play", { font: "24px Arial", fill: "#000", backgroundColor: "#0f0", padding: 10 });
         startButton.setInteractive();
         startButton.on('pointerdown', function () {
             console.log("you clicked play!")
@@ -37,7 +44,7 @@ class SceneMainMenu extends Phaser.Scene {
             .remove(); //SENDS YOU TO GAME SCENE
         }, this);
         //CREATING HOW TO PLAY BUTTON
-        const howToButton = this.add.text(20, 150, "How to Play", { font: "24px Arial", fill: "#0f0" });
+        const howToButton = this.add.text(20, 150, "How to Play", { font: "24px Arial", fill: "#000", backgroundColor: "#00f", padding: 10 });
         howToButton.setInteractive();
         howToButton.on('pointerdown', function () {
             console.log("you clicked play!")
@@ -97,11 +104,17 @@ class SceneGameOver extends Phaser.Scene {
         super({ key: 'gameOver'});
     }
     preload(){
-        
+        this.load.image('background', 'assets/wendussy.jpg');
         
     }    
     create() {
         this.add.text(20, 20, "Game Over", { font: "24px Arial", fill: "#ffffff" });
+        let centerX = this.cameras.main.centerX;
+        let centerY = this.cameras.main.centerY;
+        this.background = this.add.image(centerX, centerY, "background").setOrigin(.5, .5);
+        // Based on your game size, it may "stretch" and distort.
+        this.background.displayWidth = this.sys.canvas.width;
+        this.background.displayHeight = this.sys.canvas.height;
     } 
 
 };
@@ -202,7 +215,7 @@ class SceneInstructions extends Phaser.Scene {
 
     }
     preload() {
-        this.load.image('background', 'assets/wendussy.jpg');
+        this.load.image('background', 'assets/sky.png');
         console.log("preloaded deez nuts");
         
     }
@@ -213,6 +226,28 @@ class SceneInstructions extends Phaser.Scene {
         // Based on your game size, it may "stretch" and distort.
         this.background.displayWidth = this.sys.canvas.width;
         this.background.displayHeight = this.sys.canvas.height;
+
+        this.add.rectangle(centerX, centerY, 600, 450, 0x8A3725)
+        
+        //CREATING HOW TO PLAY BUTTON
+        const backButton = this.add.text(25, 25, "Back", { font: "24px Arial", fill: "#000", backgroundColor: "#f00", padding: 10 });
+        backButton.setInteractive();
+        backButton.on('pointerdown', function () {
+            console.log("you clicked Back!")
+            this.scene.start('mainMenu'); //SENDS YOU TO HOWTO SCENE
+        }, this);
+
+
+
+        const startButton = this.add.text(725, 25, "Play", { font: "24px Arial", fill: "#000", backgroundColor: "#0f0", padding: 10 });
+        startButton.setInteractive();
+        startButton.on('pointerdown', function () {
+            console.log("you clicked play!")
+            this.scene
+            .launch('game')
+            .launch('store')
+            .remove(); //SENDS YOU TO GAME SCENE
+        }, this);
     }
     update() {
     }
@@ -362,7 +397,6 @@ class WaveMachine {
 
     }
 };
-
 
 class Wave extends Phaser.GameObjects.Group {
     constructor(scene) {
