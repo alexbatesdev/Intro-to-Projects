@@ -100,6 +100,19 @@ class SceneStore extends Phaser.Scene {
     
 };
 
+class SceneGameOver extends Phaser.Scene {
+    constructor() {
+        super({ key: 'gameOver'});
+    }
+    preload(){
+        
+        
+    }    
+    create() {
+        this.add.text(20, 20, "Game Over", { font: "24px Arial", fill: "#ffffff" });
+    } 
+
+};
 
 class SceneGame extends Phaser.Scene {
     constructor() {
@@ -184,6 +197,10 @@ class SceneGame extends Phaser.Scene {
         this.towers.fireAll(time, delta);
         this.plrHealthText.setText(this.player.money);
         this.plrMoneyText.setText(this.player.health);
+
+        if (this.player.health <= 0) {
+            this.scene.start('gameOver');
+        }
     }
 };
 
