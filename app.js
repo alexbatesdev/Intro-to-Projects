@@ -52,7 +52,7 @@ class SceneMainMenu extends Phaser.Scene {
         }, this);
     }
 };
-
+var MenuIsOpen = true;
 class SceneStore extends Phaser.Scene {
     constructor() {
         super({ key: 'store',
@@ -68,7 +68,7 @@ class SceneStore extends Phaser.Scene {
         
     }    
     create() {
-        var MenuIsOpen = true;
+        
         var gameScene = this.scene.get('game');
         //this.add.image(400,300, 'UI');
         this.storeMenu = this.add.image(400,300, 'UI');
@@ -76,27 +76,35 @@ class SceneStore extends Phaser.Scene {
         this.storeButton = this.add.text(575, 0, "Shop", { font: "20px Berlin Sans FB Demi", fill: "#FFFFFF" });
         this.storeButton.setInteractive();
         this.tower1.setInteractive();
-        this.tower1.on('pointerdown', function () {
-            console.log("you clicked tower1!")
-            placeTower(gameScene, Math.floor(Math.random() * 800), Math.floor(Math.random() * 600));
+        //drag and drop 
+        this.input.setDraggable(this.tower1);
+        this.input.on('drag', function (pointer, gameObject, dragX, dragY) {
+            if(MenuIsOpen == true){
+                moveMenu(this.scene, this.storeButton, this.storeMenu, this.tower1);
+            }
+            gameObject.x = dragX;
+            gameObject.y = dragY;
+           
+        },this);
+        this.input.on('dragend', function (pointer, gameObject) {
+            placeTower(gameScene, gameObject.x, gameObject.y);
+            gameObject.x = gameObject.input.dragStartX;
+            gameObject.y = gameObject.input.dragStartY;
+        
+            
+            if(MenuIsOpen == false){
+            moveMenu(this.scene, this.storeButton, this.storeMenu, this.tower1);
+            }
         }, this);
+
         this.storeButton.on('pointerdown', function(){
             console.log("you clicked shop!")
-            if(MenuIsOpen){
-                this.storeMenu.setPosition(570, 300);
-                this.storeButton.setPosition(745, 0);
-                this.tower1.setPosition(850, 300);
-                MenuIsOpen = false;
-            }
-            else{
-                this.storeMenu.setPosition(400, 300);
-                this.storeButton.setPosition(575, 0);
-                this.tower1.setPosition(676, 158);
-                MenuIsOpen = true;
-            }
+            moveMenu(this.scene, this.storeButton, this.storeMenu, this.tower1);
         }, this);
     } 
 
+
+    
 };
 
 class SceneGameOver extends Phaser.Scene {
@@ -524,4 +532,17 @@ function placeTower(scene, x, y) {
     scene.add.existing(tower);
     scene.towers.add(tower);
 }
-
+function moveMenu(scene, storeButton, storeMenu, tower1){
+    if(MenuIsOpen){
+        storeMenu.setPosition(570, 300);
+        storeButton.setPosition(745, 0);
+        tower1.setPosition(850, 300);
+        MenuIsOpen = false;
+    }
+    else{
+        storeMenu.setPosition(400, 300);
+        storeButton.setPosition(575, 0);
+        tower1.setPosition(676, 158);
+        MenuIsOpen = true;
+    }
+}
