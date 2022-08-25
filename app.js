@@ -87,7 +87,9 @@ class SceneStore extends Phaser.Scene {
            
         },this);
         this.input.on('dragend', function (pointer, gameObject) {
+            if(buyTower(gameScene) == true){
             placeTower(gameScene, gameObject.x, gameObject.y);
+            }
             gameObject.x = gameObject.input.dragStartX;
             gameObject.y = gameObject.input.dragStartY;
         
@@ -143,6 +145,12 @@ class SceneGame extends Phaser.Scene {
 
     incrementMoney(i) {
         this.player.money += Math.abs(i);
+    }
+    decrementMoney(i) {
+        this.player.money -= Math.abs(i);
+    }
+    getPlayerMoney(){
+        return this.player.money 
     }
 
     preload() {
@@ -431,6 +439,10 @@ class Player {
     static decrementMoney(amount) {
         this.money -= Math.abs(amount);
     }
+    static getMoney(){
+        console.log("returning money!");
+        return this.money;
+    }
 
     setMoney(amount) {
         this.money = amount;
@@ -544,5 +556,13 @@ function moveMenu(scene, storeButton, storeMenu, tower1){
         storeButton.setPosition(575, 0);
         tower1.setPosition(676, 158);
         MenuIsOpen = true;
+    }
+}
+//Handeling store economy 
+function buyTower(scene){
+    console.log("buying tower");
+    if(scene.getPlayerMoney() >= 50){
+        scene.decrementMoney(50);
+        return true;
     }
 }
