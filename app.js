@@ -18,7 +18,7 @@ class SceneMainMenu extends Phaser.Scene {
     }
 
     preload() {
-        this.load.image('background', 'assets/sky.png');
+        this.load.image('MainMenuBackground', 'assets/sky.png');
         console.log("HELLO I AM THE MAIN MENU SCENE");
     }
 
@@ -31,7 +31,7 @@ class SceneMainMenu extends Phaser.Scene {
         this.background.displayWidth = this.sys.canvas.width;
         this.background.displayHeight = this.sys.canvas.height;
 
-        this.add.image(400, 300, 'background');
+        this.add.image(400, 300, 'MainMenuBackground');
         this.add.text(20, 20, "Main Menu", { font: "24px Arial", fill: "#ffffff" });
         //CREATING PLAY BUTTON
         const startButton = this.add.text(20, 100, "Play", { font: "24px Arial", fill: "#000", backgroundColor: "#0f0", padding: 10 });
@@ -185,7 +185,8 @@ class SceneGame extends Phaser.Scene {
         
         //Places path
         let pathJSON = new Phaser.Curves.Path(this.cache.json.get('pathJSON'));
-        
+        this.npc = new NPC(this, 100, 100,)
+        // this.physics.moveTo(this.npc, 123, 123, 300);
         //Places spawner
         this.spawner = new WaveMachine(this, pathJSON);
         this.spawner.startAutoWaves(5, 1);
@@ -193,8 +194,8 @@ class SceneGame extends Phaser.Scene {
         this.towers.add(new Tower(this, 300, 300, "tower", ));
         this.towers.add(new Tower(this, 400, 350, "tower", ));
         this.towers.add(new Tower(this, 500, 400, "tower", ));
-
         
+
         this.background.setInteractive();
         this.background.on('pointerdown', function (pointer) {
             console.log("you clicked the background!")
@@ -273,7 +274,14 @@ var config = {
     type: Phaser.AUTO,
     width: 800,
     height: 600,
-    scene: [SceneBoot, SceneMainMenu, SceneGame, SceneInstructions, SceneStore]
+    scene: [SceneBoot, SceneMainMenu, SceneGame, SceneInstructions, SceneStore],
+    physics: {
+        default: 'arcade',
+        arcade: {
+            gravity: { y: 0 },
+            debug: true
+        }
+    }
 };
 
 var game = new Phaser.Game(config);
@@ -475,7 +483,7 @@ class Bullet extends Phaser.GameObjects.Sprite {
         this.setRotation(Phaser.Math.Between(0, 360));
         this.setActive(false);
         this.setVisible(false);
-        this.scene.add.existing(this);
+        this.scene.physics.add.sprite(this.x, this.y, 'bullet');
     }
     update(time, delta) {
         this.x += this.speed * delta;
@@ -521,6 +529,14 @@ class Tower extends Phaser.GameObjects.Sprite {
     }
     update(time, delta) {
         this.bullet.update(time, delta);
+    }
+}
+
+class NPC extends Phaser.Physics.Arcade.Sprite {
+    constructor(scene, x, y, key = "star", frame) {
+        super(scene, x, y, key, frame);
+        this.scene = scene;
+        this.scene.physics.add.sprite(this.x, this.y, key);
     }
 }
 // A class that holls all the Towers
