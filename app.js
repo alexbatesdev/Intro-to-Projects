@@ -18,7 +18,7 @@ class SceneMainMenu extends Phaser.Scene {
     }
 
     preload() {
-        this.load.image('background', 'assets/sky.png');
+        this.load.image('MainMenuBackground', 'assets/sky.png');
         console.log("HELLO I AM THE MAIN MENU SCENE");
     }
 
@@ -31,7 +31,7 @@ class SceneMainMenu extends Phaser.Scene {
         this.background.displayWidth = this.sys.canvas.width;
         this.background.displayHeight = this.sys.canvas.height;
 
-        this.add.image(400, 300, 'background');
+        this.add.image(400, 300, 'MainMenuBackground');
         this.add.text(20, 20, "Main Menu", { font: "24px Arial", fill: "#ffffff" });
         //CREATING PLAY BUTTON
         const startButton = this.add.text(20, 100, "Play", { font: "24px Arial", fill: "#000", backgroundColor: "#0f0", padding: 10 });
