@@ -232,19 +232,19 @@ class SceneInstructions extends Phaser.Scene {
 
     }
     preload() {
-        this.load.image('InstructionsBackground', 'assets/sky.png');
+        this.load.image('instructions', 'assets/instructions.png');
         console.log("preloaded deez nuts");
         
     }
     create() {
         let centerX = this.cameras.main.centerX;
         let centerY = this.cameras.main.centerY;
-        this.background = this.add.image(centerX, centerY, "InstructionsBackground").setOrigin(.5, .5);
+        this.background = this.add.image(centerX, centerY, "instructions").setOrigin(.5, .5);
         // Based on your game size, it may "stretch" and distort.
         this.background.displayWidth = this.sys.canvas.width;
         this.background.displayHeight = this.sys.canvas.height;
 
-        this.add.rectangle(centerX, centerY, 600, 450, 0x8A3725)
+        
         
         //CREATING HOW TO PLAY BUTTON
         const backButton = this.add.text(25, 25, "Back", { font: "24px Arial", fill: "#000", backgroundColor: "#f00", padding: 10 });
@@ -256,7 +256,7 @@ class SceneInstructions extends Phaser.Scene {
 
 
 
-        const startButton = this.add.text(725, 25, "Play", { font: "24px Arial", fill: "#000", backgroundColor: "#0f0", padding: 10 });
+        const startButton = this.add.text(710, 25, "Play", { font: "24px Arial", fill: "#000", backgroundColor: "#0f0", padding: 10 });
         startButton.setInteractive();
         startButton.on('pointerdown', function () {
             console.log("you clicked play!")
