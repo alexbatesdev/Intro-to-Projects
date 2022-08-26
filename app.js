@@ -157,8 +157,8 @@ class SceneGame extends Phaser.Scene {
         console.log("starting our game!");
         this.load.image('background', 'assets/map1.png');
         this.load.image("spawner", "assets/spawner.png");
-        this.load.image("troop", "assets/troop.png");
-        this.load.image("tower", "assets/spawner.png");
+        this.load.image("troop", "assets/Egg.png");
+        this.load.image("tower", "assets/farmerCrop.png");
         this.load.image("bullet", "assets/star.png");
 
         this.load.image('coin', 'assets/TrumpCoin.png');
@@ -307,13 +307,13 @@ class Troop extends Phaser.GameObjects.PathFollower {
         this.path = path;
         this.health = 2;
         this.speed = Phaser.Math.GetSpeed(0, 1);
-        this.setScale(.5);
+        this.setScale(.1);
         this.bloonConfig = {
             positionOnPath: true,
             duration: 20 * 1000,
             repeat: 0,
             yoyo: false,
-            rotateToPath: true,
+            rotateToPath: false,
             verticalAdjust: true,
             onComplete: this.complete,
             onCompleteScope: this,
@@ -373,6 +373,7 @@ class WaveMachine {
                 // console.log(this.scene)
                 let troop = new Troop(this.scene, this.path, -50, 0);
                 this.scene.physics.add.existing(troop);
+                troop.body.setCircle(troop.width / 2);
                 this.scene.add.existing(troop);
                 this.scene.physics.add.existing(troop);
                 this.waveGroup.add(troop);
@@ -534,7 +535,7 @@ class Tower extends Phaser.GameObjects.Sprite {
     constructor(scene, x, y, key, frame) {
         super(scene, x, y, key, frame);
         this.scene = scene;
-        this.setScale(.35);
+        this.setScale(.2);
         this.setOrigin(0, 0);
         this.range = 100;
         this.setActive(true);
