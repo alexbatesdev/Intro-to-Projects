@@ -477,7 +477,8 @@ class Bullet extends Phaser.Physics.Arcade.Sprite {
         this.scene.physics.add.existing(this);
         this.body.x = this.x;
         this.body.y = this.y;
-        this.scene.physics.moveTo(this, x, y, speed, 1250);
+        this.scene.physics.moveTo(this, x, y);
+        // this.scene.physics.destroy(this);
 
     }
     update(time, delta) {
@@ -519,9 +520,8 @@ class Tower extends Phaser.GameObjects.Sprite {
     shoot(){
         // this.physics.add.existing(this.npc);
         // this.physics.moveTo(this.npc, 500, 300, 300, 2000);
-        
-        // this.bullet = new Bullet(this.scene, this.x, this.y, 'bullet');
-        this.bullet.move(123, 100, 200);
+        this.bullet = new Bullet(this.scene, this.x, this.y, 'bullet');
+        this.bullet.move(123, 100);
         
     }
     update(time, delta) {
