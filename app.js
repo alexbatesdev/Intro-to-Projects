@@ -177,7 +177,6 @@ class SceneGame extends Phaser.Scene {
         
         //Places path
         let pathJSON = new Phaser.Curves.Path(this.cache.json.get('pathJSON'));
-        this.npc = new NPC(this, 100, 100,);
 
         // this.physics.moveTo(this.npc, 123, 123, 300);
         //Places spawner
@@ -464,7 +463,7 @@ class Player {
 
 class Bullet extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, x, y, key = "star", frame) {
-        super(scene, x, y, key, frame);
+        super(scene, x, y, "star", frame);
         this.scene = scene;
         this.setScale(.5);
         this.speed = Phaser.Math.GetSpeed(0,0.1);
@@ -561,14 +560,6 @@ class Tower extends Phaser.GameObjects.Sprite {
     }
     update(time, delta) {
         this.bullet.update(time, delta);
-    }
-}
-
-class NPC extends Phaser.Physics.Arcade.Sprite {
-    constructor(scene, x, y, key = "star", frame) {
-        super(scene, x, y, key, frame);
-        this.scene = scene;
-        this.scene.physics.add.sprite(this.x, this.y, key);
     }
 }
 // A class that holls all the Towers
