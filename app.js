@@ -546,12 +546,9 @@ class Tower extends Phaser.GameObjects.Sprite {
                     target = tar;
                 }
             });
-            console.log("Target Selceted");
-            console.log(target);
+
             if(target != null){
                 if(Phaser.Math.Distance.Between(this.x, this.y, target.x, target.y) <= this.range){
-                    console.log("Found target");
-                    console.log(target);
                     return target;
                 }
             }
