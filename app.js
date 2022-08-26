@@ -87,7 +87,9 @@ class SceneStore extends Phaser.Scene {
            
         },this);
         this.input.on('dragend', function (pointer, gameObject) {
+            if(buyTower(gameScene) == true){
             placeTower(gameScene, gameObject.x, gameObject.y);
+            }
             gameObject.x = gameObject.input.dragStartX;
             gameObject.y = gameObject.input.dragStartY;
         
@@ -144,6 +146,12 @@ class SceneGame extends Phaser.Scene {
     incrementMoney(i) {
         this.player.money += Math.abs(i);
     }
+    decrementMoney(i) {
+        this.player.money -= Math.abs(i);
+    }
+    getPlayerMoney(){
+        return this.player.money 
+    }
 
     preload() {
         console.log("starting our game!");
@@ -177,7 +185,8 @@ class SceneGame extends Phaser.Scene {
         
         //Places path
         let pathJSON = new Phaser.Curves.Path(this.cache.json.get('pathJSON'));
-        
+        this.npc = new NPC(this, 100, 100,)
+        // this.physics.moveTo(this.npc, 123, 123, 300);
         //Places spawner
         this.spawner = new WaveMachine(this, pathJSON);
         this.spawner.startAutoWaves(5, 1);
@@ -185,8 +194,8 @@ class SceneGame extends Phaser.Scene {
         this.towers.add(new Tower(this, 300, 300, "tower", ));
         this.towers.add(new Tower(this, 400, 350, "tower", ));
         this.towers.add(new Tower(this, 500, 400, "tower", ));
-
         
+
         this.background.setInteractive();
         this.background.on('pointerdown', function (pointer) {
             console.log("you clicked the background!")
@@ -265,7 +274,14 @@ var config = {
     type: Phaser.AUTO,
     width: 800,
     height: 600,
-    scene: [SceneBoot, SceneMainMenu, SceneGame, SceneInstructions, SceneStore]
+    scene: [SceneBoot, SceneMainMenu, SceneGame, SceneInstructions, SceneStore],
+    physics: {
+        default: 'arcade',
+        arcade: {
+            gravity: { y: 0 },
+            debug: true
+        }
+    }
 };
 
 var game = new Phaser.Game(config);
@@ -431,6 +447,10 @@ class Player {
     static decrementMoney(amount) {
         this.money -= Math.abs(amount);
     }
+    static getMoney(){
+        console.log("returning money!");
+        return this.money;
+    }
 
     setMoney(amount) {
         this.money = amount;
@@ -463,7 +483,7 @@ class Bullet extends Phaser.GameObjects.Sprite {
         this.setRotation(Phaser.Math.Between(0, 360));
         this.setActive(false);
         this.setVisible(false);
-        this.scene.add.existing(this);
+        this.scene.physics.add.sprite(this.x, this.y, 'bullet');
     }
     update(time, delta) {
         this.x += this.speed * delta;
@@ -511,6 +531,14 @@ class Tower extends Phaser.GameObjects.Sprite {
         this.bullet.update(time, delta);
     }
 }
+
+class NPC extends Phaser.Physics.Arcade.Sprite {
+    constructor(scene, x, y, key = "star", frame) {
+        super(scene, x, y, key, frame);
+        this.scene = scene;
+        this.scene.physics.add.sprite(this.x, this.y, key);
+    }
+}
 // A class that holls all the Towers
 class TowerGroup extends Phaser.GameObjects.Group {
     constructor(scene) {
@@ -546,5 +574,13 @@ function moveMenu(scene, storeButton, storeMenu, tower1){
         storeButton.setPosition(575, 0);
         tower1.setPosition(676, 158);
         MenuIsOpen = true;
+    }
+}
+//Handeling store economy 
+function buyTower(scene){
+    console.log("buying tower");
+    if(scene.getPlayerMoney() >= 50){
+        scene.decrementMoney(50);
+        return true;
     }
 }
