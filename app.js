@@ -214,6 +214,7 @@ class SceneGame extends Phaser.Scene {
                 }
                 if(troop.health <= 0){
                     troop.destroy();
+                    this.incrementMoney(Phaser.Math.Between(2, 5));
                 }
             }, 
             null, this);
@@ -329,7 +330,6 @@ class Troop extends Phaser.GameObjects.PathFollower {
         this.destroy();
         if(this.health > 0) {
             scene.decrementHealth(1);
-        //scene.incrementMoney(Phaser.Math.Between(2, 5));
         }
     }
 
