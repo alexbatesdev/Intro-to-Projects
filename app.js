@@ -132,7 +132,7 @@ class SceneGame extends Phaser.Scene {
         super({ key: 'game' });
         this.player = new Player(this);
         this.towers = new TowerGroup(this);
-
+        this.bulletGroup = new Phaser.GameObjects.Group(this);
         this.plrHealthText;
         this.plrMoneyText;
     }
@@ -169,6 +169,7 @@ class SceneGame extends Phaser.Scene {
         this.background.displayWidth = this.sys.canvas.width;
         this.background.displayHeight = this.sys.canvas.height;
 
+
         //Places ui stuff
         this.coin = this.add.image(30, 25, "coin").setScale(.10); 
         this.health = this.add.image(30, 65, "health").setScale(.33);
@@ -181,12 +182,11 @@ class SceneGame extends Phaser.Scene {
         // this.physics.moveTo(this.npc, 123, 123, 300);
         //Places spawner
         this.spawner = new WaveMachine(this, pathJSON);
-        this.spawner.startAutoWaves(5, 1);
+        this.spawner.startAutoWaves(3, 2);
         //adds tower group
-        this.towers.add(new Tower(this, 300, 300, "tower", ));
-        this.towers.add(new Tower(this, 400, 350, "tower", ));
-        this.towers.add(new Tower(this, 500, 400, "tower", ));  
-        this.physics.add.existing(this.npc, false);
+        // this.towers.add(new Tower(this, 300, 300, "tower", ));
+        // this.towers.add(new Tower(this, 400, 350, "tower", ));
+        // this.towers.add(new Tower(this, 500, 400, "tower", ));
         // this.physics.moveToObject(this.npc, this.npc2, 300);
         this.background.setInteractive();
         this.background.on('pointerdown', function (pointer) {
@@ -198,6 +198,17 @@ class SceneGame extends Phaser.Scene {
             console.log(this.player.money);
         }.bind(this));
         
+        this.physics.add.overlap(this.bulletGroup, this.spawner.waveGroup.getChildren(), 
+            function(bullet, troop){
+                bullet.destroy(); 
+                if(troop.health > 0){
+                    troop.health -= 1;
+                }
+                if(troop.health <= 0){
+                    troop.destroy();
+                }
+            }, 
+            null, this);
         //Draws path
         let gfx = this.add.graphics();
         gfx.clear();
@@ -286,7 +297,7 @@ class Troop extends Phaser.GameObjects.PathFollower {
         super(scene, path, x, y, key);
         this.scene = scene;
         this.path = path;
-        this.health;
+        this.health = 2;
         this.speed;
         this.setScale(.5);
         this.bloonConfig = {
@@ -306,9 +317,12 @@ class Troop extends Phaser.GameObjects.PathFollower {
 
     complete(tween, targets, scene) {
         console.log("troop got in");
+        console.log(this);
         this.destroy();
-        scene.decrementHealth(1);
+        if(this.health > 0) {
+            scene.decrementHealth(1);
         //scene.incrementMoney(Phaser.Math.Between(2, 5));
+        }
     }
 
     getPos() {
@@ -350,6 +364,7 @@ class WaveMachine {
 
                 let troop = new Troop(this.scene, this.path, -50, 0);
                 this.scene.add.existing(troop);
+                this.scene.physics.add.existing(troop);
                 this.waveGroup.add(troop);
                 //console.log('Spawned a troop');
 
@@ -472,6 +487,7 @@ class Bullet extends Phaser.Physics.Arcade.Sprite {
         this.setVisible(false);
         this.scene.physics.add.existing(this);
         
+        
     }
 
     move(target) {
@@ -487,13 +503,14 @@ class Bullet extends Phaser.Physics.Arcade.Sprite {
         }
     }
     update(time, delta) {
-        this.x += this.speed * delta;
-        if (this.x > this.scene.sys.canvas.width) {
-            this.setActive(false);
-            this.setVisible(false);
-        }
+        // this.x += this.speed * delta;
+        // if (this.x > this.scene.sys.canvas.width) {
+        //     this.setActive(false);
+        //     this.setVisible(false);
+        // }
     }
 }
+
 
 // A tower class that can shoot bullets to any nearby troops
 // Tower can shoot any troop on the scence within a certain range
@@ -506,7 +523,6 @@ class Tower extends Phaser.GameObjects.Sprite {
         this.setScale(.35);
         this.setOrigin(0, 0);
         this.range = 100;
-        // this.setRotation(Phaser.Math.Between(0, 360));
         this.setActive(true);
         this.setVisible(true);
         this.scene.add.existing(this);
@@ -527,6 +543,7 @@ class Tower extends Phaser.GameObjects.Sprite {
         // this.physics.add.existing(this.npc);
         // this.physics.moveTo(this.npc, 500, 300, 300, 2000);
         this.bullet = new Bullet(this.scene, this.x, this.y, 'bullet');
+        this.scene.bulletGroup.add(this.bullet);
         this.bullet.move(this.findTarget());
         
     }
