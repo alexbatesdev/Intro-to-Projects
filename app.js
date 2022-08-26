@@ -178,6 +178,8 @@ class SceneGame extends Phaser.Scene {
         //Places path
         let pathJSON = new Phaser.Curves.Path(this.cache.json.get('pathJSON'));
         this.npc = new NPC(this, 100, 100,)
+        this.npc2 = new NPC(this, 200, 200,)
+
         // this.physics.moveTo(this.npc, 123, 123, 300);
         //Places spawner
         this.spawner = new WaveMachine(this, pathJSON);
@@ -185,9 +187,10 @@ class SceneGame extends Phaser.Scene {
         //adds tower group
         this.towers.add(new Tower(this, 300, 300, "tower", ));
         this.towers.add(new Tower(this, 400, 350, "tower", ));
-        this.towers.add(new Tower(this, 500, 400, "tower", ));
-        
-
+        this.towers.add(new Tower(this, 500, 400, "tower", ));  
+        this.physics.add.existing(this.npc, false);
+        this.physics.add.existing(this.npc2, false);
+        // this.physics.moveToObject(this.npc, this.npc2, 300);
         this.background.setInteractive();
         this.background.on('pointerdown', function (pointer) {
             console.log("you clicked the background!")
@@ -461,17 +464,21 @@ class Player {
 
 // A Bullet class that a Tower can shoot
 
-class Bullet extends Phaser.GameObjects.Sprite {
-    constructor(scene, x, y, key, frame) {
+class Bullet extends Phaser.Physics.Arcade.Sprite {
+    constructor(scene, x, y, key = "star", frame) {
         super(scene, x, y, key, frame);
         this.scene = scene;
-        this.speed = Phaser.Math.GetSpeed(400, 1);
-        this.setScale(.5);
-        this.setOrigin(0, 0);
+        // this.setScale(.5);
         this.setRotation(Phaser.Math.Between(0, 360));
-        this.setActive(false);
-        this.setVisible(false);
-        this.scene.physics.add.sprite(this.x, this.y, 'bullet');
+        this.setActive(true);
+        this.setVisible(true);
+    }
+    move(x, y, speed) {
+        this.scene.physics.add.existing(this);
+        this.body.x = this.x;
+        this.body.y = this.y;
+        this.scene.physics.moveTo(this, x, y, speed, 1250);
+
     }
     update(time, delta) {
         this.x += this.speed * delta;
@@ -510,10 +517,12 @@ class Tower extends Phaser.GameObjects.Sprite {
         });
     }
     shoot(){
-        this.bullet.setActive(true);
-        this.bullet.setVisible(true);
-        this.bullet.setPosition(this.x, this.y);
-        this.bullet.setRotation(this.rotation);
+        // this.physics.add.existing(this.npc);
+        // this.physics.moveTo(this.npc, 500, 300, 300, 2000);
+        
+        // this.bullet = new Bullet(this.scene, this.x, this.y, 'bullet');
+        this.bullet.move(123, 100, 200);
+        
     }
     update(time, delta) {
         this.bullet.update(time, delta);
