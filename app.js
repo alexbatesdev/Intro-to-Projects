@@ -18,7 +18,7 @@ class SceneMainMenu extends Phaser.Scene {
     }
 
     preload() {
-        this.load.image('MainMenuBackground', 'assets/sky.png');
+        this.load.image('MainMenuBackground', 'assets/menubg.png');
         console.log("HELLO I AM THE MAIN MENU SCENE");
     }
 
@@ -26,13 +26,13 @@ class SceneMainMenu extends Phaser.Scene {
 
         let centerX = this.cameras.main.centerX;
         let centerY = this.cameras.main.centerY;
-        this.background = this.add.image(centerX, centerY, "background").setOrigin(.5, .5);
+        this.background = this.add.image(centerX, centerY, "MainMenuBackground").setOrigin(.5, .5);
         // Based on your game size, it may "stretch" and distort.
         this.background.displayWidth = this.sys.canvas.width;
         this.background.displayHeight = this.sys.canvas.height;
 
         this.add.image(400, 300, 'MainMenuBackground');
-        this.add.text(20, 20, "Main Menu", { font: "24px Arial", fill: "#ffffff" });
+        this.add.text(20, 20, "Steeds & Steel II: Revengeance", { font: "48px Times New Roman", fill: "#ffffff" });
         //CREATING PLAY BUTTON
         const startButton = this.add.text(20, 100, "Play", { font: "24px Arial", fill: "#000", backgroundColor: "#0f0", padding: 10 });
         startButton.setInteractive();
@@ -223,14 +223,14 @@ class SceneInstructions extends Phaser.Scene {
 
     }
     preload() {
-        this.load.image('background', 'assets/sky.png');
+        this.load.image('InstructionsBackground', 'assets/sky.png');
         console.log("preloaded deez nuts");
         
     }
     create() {
         let centerX = this.cameras.main.centerX;
         let centerY = this.cameras.main.centerY;
-        this.background = this.add.image(centerX, centerY, "background").setOrigin(.5, .5);
+        this.background = this.add.image(centerX, centerY, "InstructionsBackground").setOrigin(.5, .5);
         // Based on your game size, it may "stretch" and distort.
         this.background.displayWidth = this.sys.canvas.width;
         this.background.displayHeight = this.sys.canvas.height;
@@ -526,6 +526,8 @@ class TowerGroup extends Phaser.GameObjects.Group {
         });
     }
 }
+
+// ////////////////////////////////////////////////////////////////////////////////////////////////
 
 function placeTower(scene, x, y) {
     let tower = new Tower(scene, x, y, 'tower');
