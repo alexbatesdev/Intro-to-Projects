@@ -479,6 +479,7 @@ class Bullet extends Phaser.Physics.Arcade.Sprite {
         if (!target) {
 
         } else {
+
             this.body.x = this.x;
             this.body.y = this.y;
             // this.scene.physics.moveToObject(this, this.scene.npc, 100);
@@ -505,6 +506,7 @@ class Tower extends Phaser.GameObjects.Sprite {
         this.scene = scene;
         this.setScale(.35);
         this.setOrigin(0, 0);
+        this.range = 100;
         // this.setRotation(Phaser.Math.Between(0, 360));
         this.setActive(true);
         this.setVisible(true);
@@ -543,11 +545,20 @@ class Tower extends Phaser.GameObjects.Sprite {
                 if (dist < Phaser.Math.Distance.Between(this.x, this.y, target.x, target.y)) {
                     target = tar;
                 }
-            
             });
-            console.log("Found target");
+            console.log("Target Selceted");
             console.log(target);
-            return target;
+            if(target != null){
+                if(Phaser.Math.Distance.Between(this.x, this.y, target.x, target.y) <= this.range){
+                    console.log("Found target");
+                    console.log(target);
+                    return target;
+                }
+            }
+            else{
+                console.log("No target");
+                return null;
+            }
         }
 
     }
