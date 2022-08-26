@@ -295,7 +295,7 @@ class Troop extends Phaser.GameObjects.PathFollower {
         this.scene = scene;
         this.path = path;
         this.health;
-        this.speed;
+        this.speed = Phaser.Math.GetSpeed(0, 1);
         this.setScale(.5);
         this.bloonConfig = {
             positionOnPath: true,
@@ -356,7 +356,9 @@ class WaveMachine {
             delay: delayMilli,
             callback: () => {
 
+                // console.log(this.scene)
                 let troop = new Troop(this.scene, this.path, -50, 0);
+                this.scene.physics.add.existing(troop);
                 this.scene.add.existing(troop);
                 this.waveGroup.add(troop);
                 //console.log('Spawned a troop');
