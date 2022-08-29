@@ -64,7 +64,7 @@ class SceneStore extends Phaser.Scene {
         
         console.log("HELLO I AM THE STORE SCENE");
         this.load.image('UI', 'assets/tempstore.png');
-        this.load.image('tower1', 'assets/spawner.png');
+        this.load.image('tower1', 'assets/farmer.png');
         
     }    
     create() {
@@ -72,7 +72,7 @@ class SceneStore extends Phaser.Scene {
         var gameScene = this.scene.get('game');
         //this.add.image(400,300, 'UI');
         this.storeMenu = this.add.image(400,300, 'UI');
-        this.tower1 = this.add.image(676, 158, 'tower1').setScale(0.5);
+        this.tower1 = this.add.image(665, 180, 'tower1').setScale(0.15);
         this.storeButton = this.add.text(575, 0, "Shop", { font: "20px Berlin Sans FB Demi", fill: "#FFFFFF" });
         this.storeButton.setInteractive();
         this.tower1.setInteractive();
@@ -114,17 +114,16 @@ class SceneGameOver extends Phaser.Scene {
         super({ key: 'gameOver'});
     }
     preload(){
-        this.load.image('background', 'assets/wendussy.jpg');
+        this.load.image('gameOver', 'assets/GameOver.png');
         
     }    
     create() {
-        this.add.text(20, 20, "Game Over", { font: "24px Arial", fill: "#ffffff" });
         let centerX = this.cameras.main.centerX;
         let centerY = this.cameras.main.centerY;
-        this.background = this.add.image(centerX, centerY, "background").setOrigin(.5, .5);
+        this.add.image(centerX, centerY, "gameOver").setOrigin(.5, .5);
         // Based on your game size, it may "stretch" and distort.
-        this.background.displayWidth = this.sys.canvas.width;
-        this.background.displayHeight = this.sys.canvas.height;
+        //this.background.displayWidth = this.sys.canvas.width;
+        //this.background.displayHeight = this.sys.canvas.height;
     } 
 
 };
@@ -291,12 +290,12 @@ var config = {
     type: Phaser.AUTO,
     width: 800,
     height: 600,
-    scene: [SceneBoot, SceneMainMenu, SceneGame, SceneInstructions, SceneStore],
+    scene: [SceneBoot, SceneMainMenu, SceneGame, SceneInstructions, SceneStore, SceneGameOver],
     physics: {
         default: 'arcade',
         arcade: {
             gravity: { y: 0 },
-            debug: true
+            debug: false
         }
     }
 };
@@ -447,7 +446,7 @@ class WaveMachine {
     roundCalc(n) {
         return 5 * n;
     }
-
+    
     healthCalc(n) {
         let xMath = Math.floor(Phaser.Math.Between(0, 10) + (n * .3));
         
@@ -490,7 +489,7 @@ class Player {
     constructor(scene) {
         this.scene = scene;
         this.money = 100;
-        this.health = 100;
+        this.health = 1;
     }
 
     static incrementMoney(amount) {
@@ -527,17 +526,16 @@ class Player {
 // A Bullet class that a Tower can shoot
 
 class Bullet extends Phaser.Physics.Arcade.Sprite {
-    constructor(scene, x, y, key = "star", frame) {
-        super(scene, x, y, "star", frame);
+    constructor(scene, x, y, key = "bullet", frame) {
+        super(scene, x, y, key, frame);
         this.scene = scene;
         this.setScale(.5);
         this.speed = Phaser.Math.GetSpeed(0,0.1);
         this.setRotation(Phaser.Math.Between(0, 360));
-        this.setActive(false);
-        this.setVisible(false);
+        this.setActive(true);
+        this.setVisible(true);
+        this.scene.add.existing(this);
         this.scene.physics.add.existing(this);
-        
-        
     }
 
     move(target) {
@@ -548,7 +546,7 @@ class Bullet extends Phaser.Physics.Arcade.Sprite {
             this.body.x = this.x;
             this.body.y = this.y;
             // this.scene.physics.moveToObject(this, this.scene.npc, 100);
-            this.scene.physics.moveToObject(this, target, 100);
+            this.scene.physics.moveToObject(this, target, 250);
 
         }
     }
@@ -571,7 +569,6 @@ class Tower extends Phaser.GameObjects.Sprite {
         super(scene, x, y, key, frame);
         this.scene = scene;
         this.setScale(.2);
-        this.setOrigin(0, 0);
         this.range = 100;
         this.setActive(true);
         this.setVisible(true);
@@ -592,15 +589,19 @@ class Tower extends Phaser.GameObjects.Sprite {
     shoot(){
         // this.physics.add.existing(this.npc);
         // this.physics.moveTo(this.npc, 500, 300, 300, 2000);
-        this.bullet = new Bullet(this.scene, this.x, this.y, 'bullet');
-        this.scene.bulletGroup.add(this.bullet);
-        this.bullet.move(this.findTarget());
-        
+        this.findTarget();
+        if(this.target){
+            this.bullet = new Bullet(this.scene, this.x, this.y, 'bullet');
+            this.scene.bulletGroup.add(this.bullet);
+            this.bullet.move(this.target);
+            // this.setAngle(Phaser.Math.Angle.Between(this.x, this.y, this.target.x, this.target.y) - 80);
+            this.setRotation(Phaser.Math.Angle.Between(this.x, this.y, this.target.x, this.target.y) + 90);
+        }
     }
     findTarget() {
         if(this.scene.spawner.waveGroup.getChildren().size <= 0){
             console.log('No troops in wave group');
-            return null;
+            return 
         }
         else{
             let targets = this.scene.spawner.waveGroup.getChildren();
@@ -615,12 +616,12 @@ class Tower extends Phaser.GameObjects.Sprite {
 
             if(target != null){
                 if(Phaser.Math.Distance.Between(this.x, this.y, target.x, target.y) <= this.range){
-                    return target;
+                    this.target = target;
                 }
             }
             else{
                 console.log("No target");
-                return null;
+                this.target = undefined; 
             }
         }
 
@@ -662,7 +663,7 @@ function moveMenu(scene, storeButton, storeMenu, tower1){
     else{
         storeMenu.setPosition(400, 300);
         storeButton.setPosition(575, 0);
-        tower1.setPosition(676, 158);
+        tower1.setPosition(665, 180);
         MenuIsOpen = true;
     }
 }
