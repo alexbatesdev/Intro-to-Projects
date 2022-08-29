@@ -64,7 +64,7 @@ class SceneStore extends Phaser.Scene {
         
         console.log("HELLO I AM THE STORE SCENE");
         this.load.image('UI', 'assets/tempstore.png');
-        this.load.image('tower1', 'assets/spawner.png');
+        this.load.image('tower1', 'assets/farmer.png');
         
     }    
     create() {
@@ -72,7 +72,7 @@ class SceneStore extends Phaser.Scene {
         var gameScene = this.scene.get('game');
         //this.add.image(400,300, 'UI');
         this.storeMenu = this.add.image(400,300, 'UI');
-        this.tower1 = this.add.image(676, 158, 'tower1').setScale(0.5);
+        this.tower1 = this.add.image(665, 180, 'tower1').setScale(0.15);
         this.storeButton = this.add.text(575, 0, "Shop", { font: "20px Berlin Sans FB Demi", fill: "#FFFFFF" });
         this.storeButton.setInteractive();
         this.tower1.setInteractive();
@@ -627,7 +627,7 @@ function moveMenu(scene, storeButton, storeMenu, tower1){
     else{
         storeMenu.setPosition(400, 300);
         storeButton.setPosition(575, 0);
-        tower1.setPosition(676, 158);
+        tower1.setPosition(665, 180);
         MenuIsOpen = true;
     }
 }
