@@ -135,6 +135,7 @@ class SceneGame extends Phaser.Scene {
         this.player = new Player(this);
         this.towers = new TowerGroup(this);
         this.bulletGroup = new Phaser.GameObjects.Group(this);
+        this.gameOver = false;
         this.plrHealthText;
         this.plrMoneyText;
     }
@@ -211,6 +212,7 @@ class SceneGame extends Phaser.Scene {
                 bullet.destroy(); 
                 if(troop.health > 0){
                     troop.health -= 1;
+                    troop.updateTexture();
                 }
                 if(troop.health <= 0){
                     troop.destroy();
@@ -224,6 +226,7 @@ class SceneGame extends Phaser.Scene {
         gfx.lineStyle(2, 0xffffff, 1);
         //pathJSON.draw(gfx);
         
+        this.gameOver = false;
     }
 
     update(time, delta) {
@@ -232,8 +235,10 @@ class SceneGame extends Phaser.Scene {
         this.plrHealthText.setText(this.player.money);
         this.plrMoneyText.setText(this.player.health);
 
-        if (this.player.health <= 0) {
+        
+        if (this.player.health <= 0 && !this.gameOver) {
             this.scene.start('gameOver');
+            this.gameOver = true;
         }
     }
 };
@@ -302,12 +307,13 @@ var game = new Phaser.Game(config);
 
 class Troop extends Phaser.GameObjects.PathFollower {
     
-    constructor(scene, path, x, y, key = 'troop') {
-        super(scene, path, x, y, key);
+    constructor(scene, path, health,  x = -50, y = -50) { //TODO: CALC THE START OF THE PATH AND SPAWN THERE
+        super(scene, path, x, y, 'troop');
         this.scene = scene;
         this.path = path;
-        this.health = 2;
+        this.health = health;
         this.speed = Phaser.Math.GetSpeed(0, 1);
+        this.updateTexture();
         this.setScale(.1);
         this.bloonConfig = {
             positionOnPath: true,
@@ -320,16 +326,15 @@ class Troop extends Phaser.GameObjects.PathFollower {
             onCompleteScope: this,
             onCompleteParams: [this.scene]
         };
-
         super.startFollow(this.bloonConfig);
     }
 
     complete(tween, targets, scene) {
-        console.log("troop got in");
-        console.log(this);
+        // console.log("troop got in");
+        // console.log(this);
         this.destroy();
         if(this.health > 0) {
-            scene.decrementHealth(1);
+            scene.decrementHealth(this.health);
         }
     }
 
@@ -345,6 +350,23 @@ class Troop extends Phaser.GameObjects.PathFollower {
         return this;
     }
 
+    updateTexture() {
+        switch (this.health) {
+            case 1:
+                this.setTexture("troop");
+                break;
+            case 2:
+                this.setTexture("troop");
+                break;
+            case 3:
+                this.setTexture("troop");
+                break;
+            default:
+                this.setTexture("troop");
+                break;
+        }
+    }
+
 };
 
 class WaveMachine {
@@ -357,21 +379,20 @@ class WaveMachine {
         this.waveGroup = new Wave(this.scene);
         this.timer;
         this.runChildUpdate = true;
-
-        
+        this.roundNum = 1;
     }
 
     startWave(roundNum, delaySec, quantity = this.roundCalc(roundNum)) {
-        this.getTroop(0);
-        let delayMilli = delaySec * 1000;
         console.log(`Starting wave ${roundNum} with ${quantity} bloons`);
         this.inProgress = true;
         this.timer = this.scene.time.addEvent({
-            delay: delayMilli,
+            delay: this.delayCalc(roundNum),
             callback: () => {
 
                 // console.log(this.scene)
-                let troop = new Troop(this.scene, this.path, -50, 0);
+                let health = this.healthCalc(roundNum);
+
+                let troop = new Troop(this.scene, this.path, health);
                 this.scene.physics.add.existing(troop);
                 troop.body.setCircle(troop.width / 2);
                 this.scene.add.existing(troop);
@@ -389,7 +410,7 @@ class WaveMachine {
                         this.scene.time.addEvent({
                             delay: this.secBetweenWaves * 1000,
                             callback: () => {
-                                this.startWave(roundNum + 1, delaySec);
+                                this.startWave(roundNum + 1, this.delayCalc(roundNum));
                             }
                         });
                     }
@@ -425,6 +446,20 @@ class WaveMachine {
     //untested round calc
     roundCalc(n) {
         return 5 * n;
+    }
+
+    healthCalc(n) {
+        let xMath = Math.floor(Phaser.Math.Between(0, 10) + (n * .3));
+        
+            if (xMath < 5) return 1;
+            else if (5 <= xMath && xMath <= 8) return 2;
+            else if (8 < xMath) return 3;
+    }
+
+    delayCalc(n) {
+        let startDelayMilli = 2000;
+        startDelayMilli -= ((n - 1) * 250);
+        return Phaser.Math.Clamp(startDelayMilli, 100, 2000);
     }
     
     getTroop(i) {
