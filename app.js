@@ -488,8 +488,8 @@ class Wave extends Phaser.GameObjects.Group {
 class Player {
     constructor(scene) {
         this.scene = scene;
-        this.money = 100;
-        this.health = 1;
+        this.money = 50;
+        this.health = 100;
     }
 
     static incrementMoney(amount) {
