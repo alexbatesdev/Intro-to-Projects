@@ -64,7 +64,7 @@ class SceneStore extends Phaser.Scene {
         
         console.log("HELLO I AM THE STORE SCENE");
         this.load.image('UI', 'assets/tempstore.png');
-        this.load.image('tower1', 'assets/spawner.png');
+        this.load.image('tower1', 'assets/farmer.png');
         
     }    
     create() {
@@ -72,7 +72,7 @@ class SceneStore extends Phaser.Scene {
         var gameScene = this.scene.get('game');
         //this.add.image(400,300, 'UI');
         this.storeMenu = this.add.image(400,300, 'UI');
-        this.tower1 = this.add.image(676, 158, 'tower1').setScale(0.5);
+        this.tower1 = this.add.image(665, 180, 'tower1').setScale(0.15);
         this.storeButton = this.add.text(575, 0, "Shop", { font: "20px Berlin Sans FB Demi", fill: "#FFFFFF" });
         this.storeButton.setInteractive();
         this.tower1.setInteractive();
@@ -114,17 +114,16 @@ class SceneGameOver extends Phaser.Scene {
         super({ key: 'gameOver'});
     }
     preload(){
-        this.load.image('background', 'assets/wendussy.jpg');
+        this.load.image('gameOver', 'assets/GameOver.png');
         
     }    
     create() {
-        this.add.text(20, 20, "Game Over", { font: "24px Arial", fill: "#ffffff" });
         let centerX = this.cameras.main.centerX;
         let centerY = this.cameras.main.centerY;
-        this.background = this.add.image(centerX, centerY, "background").setOrigin(.5, .5);
+        this.add.image(centerX, centerY, "gameOver").setOrigin(.5, .5);
         // Based on your game size, it may "stretch" and distort.
-        this.background.displayWidth = this.sys.canvas.width;
-        this.background.displayHeight = this.sys.canvas.height;
+        //this.background.displayWidth = this.sys.canvas.width;
+        //this.background.displayHeight = this.sys.canvas.height;
     } 
 
 };
@@ -233,7 +232,7 @@ class SceneGame extends Phaser.Scene {
         this.plrMoneyText.setText(this.player.health);
 
         if (this.player.health <= 0) {
-            this.scene.start('gameOver');
+            this.scene.launch('gameOver');
         }
     }
 };
@@ -286,7 +285,7 @@ var config = {
     type: Phaser.AUTO,
     width: 800,
     height: 600,
-    scene: [SceneBoot, SceneMainMenu, SceneGame, SceneInstructions, SceneStore],
+    scene: [SceneBoot, SceneMainMenu, SceneGame, SceneInstructions, SceneStore, SceneGameOver],
     physics: {
         default: 'arcade',
         arcade: {
@@ -455,7 +454,7 @@ class Player {
     constructor(scene) {
         this.scene = scene;
         this.money = 100;
-        this.health = 100;
+        this.health = 1;
     }
 
     static incrementMoney(amount) {
@@ -629,7 +628,7 @@ function moveMenu(scene, storeButton, storeMenu, tower1){
     else{
         storeMenu.setPosition(400, 300);
         storeButton.setPosition(575, 0);
-        tower1.setPosition(676, 158);
+        tower1.setPosition(665, 180);
         MenuIsOpen = true;
     }
 }
