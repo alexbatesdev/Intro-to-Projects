@@ -114,17 +114,16 @@ class SceneGameOver extends Phaser.Scene {
         super({ key: 'gameOver'});
     }
     preload(){
-        this.load.image('background', 'assets/wendussy.jpg');
+        this.load.image('gameOver', 'assets/GameOver.png');
         
     }    
     create() {
-        this.add.text(20, 20, "Game Over", { font: "24px Arial", fill: "#ffffff" });
         let centerX = this.cameras.main.centerX;
         let centerY = this.cameras.main.centerY;
-        this.background = this.add.image(centerX, centerY, "background").setOrigin(.5, .5);
+        this.add.image(centerX, centerY, "gameOver").setOrigin(.5, .5);
         // Based on your game size, it may "stretch" and distort.
-        this.background.displayWidth = this.sys.canvas.width;
-        this.background.displayHeight = this.sys.canvas.height;
+        //this.background.displayWidth = this.sys.canvas.width;
+        //this.background.displayHeight = this.sys.canvas.height;
     } 
 
 };
@@ -233,7 +232,7 @@ class SceneGame extends Phaser.Scene {
         this.plrMoneyText.setText(this.player.health);
 
         if (this.player.health <= 0) {
-            this.scene.start('gameOver');
+            this.scene.launch('gameOver');
         }
     }
 };
@@ -286,7 +285,7 @@ var config = {
     type: Phaser.AUTO,
     width: 800,
     height: 600,
-    scene: [SceneBoot, SceneMainMenu, SceneGame, SceneInstructions, SceneStore],
+    scene: [SceneBoot, SceneMainMenu, SceneGame, SceneInstructions, SceneStore, SceneGameOver],
     physics: {
         default: 'arcade',
         arcade: {
@@ -455,7 +454,7 @@ class Player {
     constructor(scene) {
         this.scene = scene;
         this.money = 100;
-        this.health = 100;
+        this.health = 1;
     }
 
     static incrementMoney(amount) {
