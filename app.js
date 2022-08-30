@@ -65,14 +65,18 @@ class SceneStore extends Phaser.Scene {
         console.log("HELLO I AM THE STORE SCENE");
         this.load.image('UI', 'assets/tempstore.png');
         this.load.image('tower1', 'assets/farmer.png');
+        this.load.image('range', 'assets/rangeCircle.png');
         
     }    
     create() {
         
         var gameScene = this.scene.get('game');
+        var rangeCicleVisable = false;
         //this.add.image(400,300, 'UI');
+        
         this.storeMenu = this.add.image(400,300, 'UI');
         this.tower1 = this.add.image(665, 180, 'tower1').setScale(0.15);
+        this.circle =this.add.image(400,300, 'range').setVisible(false);
         this.storeButton = this.add.text(575, 0, "Shop", { font: "20px Berlin Sans FB Demi", fill: "#FFFFFF" });
         this.storeButton.setInteractive();
         this.tower1.setInteractive();
@@ -80,8 +84,13 @@ class SceneStore extends Phaser.Scene {
         this.input.setDraggable(this.tower1);
         this.input.on('drag', function (pointer, gameObject, dragX, dragY) {
             if(MenuIsOpen == true){
+                this.circle.setVisible(true);
                 moveMenu(this.scene, this.storeButton, this.storeMenu, this.tower1);
+                gameObject.setScale(.2);
+                gameObject.setRotation(5.5);
             }
+            this.circle.x = dragX;
+            this.circle.y = dragY;
             gameObject.x = dragX;
             gameObject.y = dragY;
            
@@ -90,8 +99,13 @@ class SceneStore extends Phaser.Scene {
             if(buyTower(gameScene) == true){
             placeTower(gameScene, gameObject.x, gameObject.y);
             }
+           
+            this.circle.setVisible(false);
+            
             gameObject.x = gameObject.input.dragStartX;
             gameObject.y = gameObject.input.dragStartY;
+            gameObject.setScale(.15);
+            gameObject.setRotation(0);
         
             
             if(MenuIsOpen == false){
@@ -236,7 +250,8 @@ class SceneGame extends Phaser.Scene {
 
         
         if (this.player.health <= 0 && !this.gameOver) {
-            this.scene.start('gameOver');
+            this.scene.launch('gameOver');
+            this.scene.stop('store');
             this.gameOver = true;
         }
     }
@@ -488,6 +503,7 @@ class Wave extends Phaser.GameObjects.Group {
 class Player {
     constructor(scene) {
         this.scene = scene;
+
         this.money = 50;
         this.health = 100;
     }
