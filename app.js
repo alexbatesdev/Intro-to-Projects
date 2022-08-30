@@ -171,7 +171,11 @@ class SceneGame extends Phaser.Scene {
         console.log("starting our game!");
         this.load.image('background', 'assets/map1.png');
         this.load.image("spawner", "assets/spawner.png");
-        this.load.image("troop", "assets/Egg.png");
+        this.load.image("Egg4", "assets/Egg4.png");
+        this.load.image("Egg3", "assets/Egg3.png");
+        this.load.image("Egg2", "assets/Egg2.png");
+        this.load.image("Egg1", "assets/Egg1.png");
+
         this.load.image("tower", "assets/farmerCrop.png");
         this.load.image("bullet", "assets/star.png");
 
@@ -246,7 +250,7 @@ class SceneGame extends Phaser.Scene {
         //this.spawner.update(time, delta);
         this.towers.fireAll(time, delta);
         this.plrHealthText.setText(this.player.money);
-        this.plrMoneyText.setText(this.player.health);
+        this.plrMoneyText.setText(Math.floor(this.player.health));
 
         
         if (this.player.health <= 0 && !this.gameOver) {
@@ -310,7 +314,7 @@ var config = {
         default: 'arcade',
         arcade: {
             gravity: { y: 0 },
-            debug: false
+            debug: true
         }
     }
 };
@@ -322,12 +326,11 @@ var game = new Phaser.Game(config);
 class Troop extends Phaser.GameObjects.PathFollower {
     
     constructor(scene, path, health,  x = -50, y = -50) { //TODO: CALC THE START OF THE PATH AND SPAWN THERE
-        super(scene, path, x, y, 'troop');
+        super(scene, path, x, y, 'Egg4');
         this.scene = scene;
         this.path = path;
         this.health = health;
         this.speed = Phaser.Math.GetSpeed(0, 1);
-        this.updateTexture();
         this.setScale(.1);
         this.bloonConfig = {
             positionOnPath: true,
@@ -367,16 +370,19 @@ class Troop extends Phaser.GameObjects.PathFollower {
     updateTexture() {
         switch (this.health) {
             case 1:
-                this.setTexture("troop");
+                this.setTexture("Egg1");
                 break;
             case 2:
-                this.setTexture("troop");
+                this.setTexture("Egg2");
                 break;
             case 3:
-                this.setTexture("troop");
+                this.setTexture("Egg3");
+                break;
+            case 4:
+                this.setTexture("Egg4");
                 break;
             default:
-                this.setTexture("troop");
+                this.setTexture("Egg4");
                 break;
         }
     }
@@ -467,7 +473,8 @@ class WaveMachine {
         
             if (xMath < 5) return 1;
             else if (5 <= xMath && xMath <= 8) return 2;
-            else if (8 < xMath) return 3;
+            else if (8 < xMath && xMath < 10) return 3;
+            else if (xMath >= 10) return 4;
     }
 
     delayCalc(n) {
