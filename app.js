@@ -206,9 +206,9 @@ class SceneGame extends Phaser.Scene {
             console.log(this.player.money);
         }.bind(this));
         
-        this.physics.add.overlap(this.bulletGroup, this.spawner.waveGroup.getChildren(), 
+        this.physics.add.overlap(this.bulletGroup, this.spawner.waveGroup.getChildren(),
             function(bullet, troop){
-                bullet.destroy(); 
+                bullet.destroy();
                 if(troop.health > 0){
                     troop.health -= 1;
                     troop.updateTexture();
