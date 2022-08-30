@@ -178,7 +178,7 @@ class SceneGame extends Phaser.Scene {
 
         this.load.image("tower", "assets/farmerCrop.png");
         this.load.image("bullet", "assets/star.png");
-
+        this.load.image("shotgun", "assets/ShotGunEgg2.png");
         this.load.image('coin', 'assets/TrumpCoin.png');
         this.load.image('health', 'assets/anatomical-heart.png');
         
@@ -209,6 +209,8 @@ class SceneGame extends Phaser.Scene {
         //Places spawner
         this.spawner = new WaveMachine(this, pathJSON);
         this.spawner.startAutoWaves(3, 2);
+        // this.sniper = new SniperTower(this, 300, 300, "tower", );
+        // this.smg = new SMGTower(this, 180, 330, "tower", );
         //adds tower group
         // this.towers.add(new Tower(this, 300, 300, "tower", ));
         // this.towers.add(new Tower(this, 400, 350, "tower", ));
@@ -228,7 +230,7 @@ class SceneGame extends Phaser.Scene {
             function(bullet, troop){
                 bullet.destroy();
                 if(troop.health > 0){
-                    troop.health -= 1;
+                    troop.health -= bullet.damage;
                     troop.updateTexture();
                 }
                 if(troop.health <= 0){
@@ -278,8 +280,8 @@ class SceneInstructions extends Phaser.Scene {
         // Based on your game size, it may "stretch" and distort.
         this.background.displayWidth = this.sys.canvas.width;
         this.background.displayHeight = this.sys.canvas.height;
-
         
+
         
         //CREATING HOW TO PLAY BUTTON
         const backButton = this.add.text(25, 25, "Back", { font: "24px Arial", fill: "#000", backgroundColor: "#f00", padding: 10 });
@@ -552,6 +554,8 @@ class Bullet extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, x, y, key = "bullet", frame) {
         super(scene, x, y, key, frame);
         this.scene = scene;
+        this.damage = 1;
+        this.time = 0;
         this.setScale(.5);
         this.speed = Phaser.Math.GetSpeed(0,0.1);
         this.setRotation(Phaser.Math.Between(0, 360));
@@ -563,14 +567,11 @@ class Bullet extends Phaser.Physics.Arcade.Sprite {
 
     move(target) {
         if (!target) {
-
         } else {
-
             this.body.x = this.x;
             this.body.y = this.y;
-            // this.scene.physics.moveToObject(this, this.scene.npc, 100);
-            this.scene.physics.moveToObject(this, target, 250);
-
+            //shift the position of the target ever so slightly
+            this.scene.physics.moveToObject(this, target, this.time);
         }
     }
     update(time, delta) {
@@ -589,7 +590,7 @@ class Bullet extends Phaser.Physics.Arcade.Sprite {
 // Tower will only shoot at one troop at a time
 class Tower extends Phaser.GameObjects.Sprite {
     constructor(scene, x, y, key, frame) {
-        super(scene, x, y, key, frame);
+        super(scene, x, y, key = "shotgun", frame);
         this.scene = scene;
         this.setScale(.2);
         this.range = 100;
@@ -610,13 +611,155 @@ class Tower extends Phaser.GameObjects.Sprite {
         });
     }
     shoot(){
+        this.target = this.findTarget();
+        if(this.target){
+            this.bullet = new Bullet(this.scene, this.x, this.y, 'bullet');
+            this.scene.bulletGroup.add(this.bullet);
+            this.bullet.time = 250;
+            this.bullet.damage = 1;
+            this.bullet.move(this.target);
+            // this.setAngle(Phaser.Math.Angle.Between(this.x, this.y, this.target.x, this.target.y) - 80);
+            this.setRotation(Phaser.Math.Angle.Between(this.x, this.y, this.target.x, this.target.y) + 90);
+        }
+    }
+    findTarget() {
+        if(this.scene.spawner.waveGroup.getChildren().size <= 0){
+            console.log('No troops in wave group');
+            return 
+        }
+        else{
+            let targets = this.scene.spawner.waveGroup.getChildren();
+            let target = targets[0];
+            targets.forEach(tar => {
+                //find the distance between the tower and the target
+                let dist = Phaser.Math.Distance.Between(this.x, this.y, tar.x, tar.y);
+                if (dist < Phaser.Math.Distance.Between(this.x, this.y, target.x, target.y)) {
+                    target = tar;
+                }
+            });
+            if(target){
+                if(Phaser.Math.Distance.Between(this.x, this.y, target.x, target.y) <= this.range){
+                    return target;
+                }
+            }
+            else{
+                console.log("No target");
+                return; 
+            }
+        }
+
+    }
+    update(time, delta) {
+        this.bullet.update(time, delta);
+    }
+}
+class SniperTower extends Phaser.GameObjects.Sprite {
+    constructor(scene, x, y, key, frame) {
+        super(scene, x, y, key, frame);
+        this.scene = scene;
+        this.setScale(.2);
+        this.range = 800;
+        this.damage  = 2;
+        this.setActive(true);
+        this.setVisible(true);
+        this.scene.add.existing(this);
+        this.bulletSpeed = Phaser.Math.GetSpeed(1500, .25);
+        this.bullet = new Bullet(this.scene, this.x, this.y, 'bullet');
+        this.bullet.setActive(false);
+        this.bullet.setVisible(false);
+        this.scene.add.existing(this.bullet);
+        this.shootTimer = this.scene.time.addEvent({
+            delay: 3000,
+            callback: () => {
+                this.shoot();
+            },
+            loop: true
+        });
+    }
+    shoot(){
         // this.physics.add.existing(this.npc);
         // this.physics.moveTo(this.npc, 500, 300, 300, 2000);
         this.findTarget();
         if(this.target){
             this.bullet = new Bullet(this.scene, this.x, this.y, 'bullet');
             this.scene.bulletGroup.add(this.bullet);
+            this.bullet.time = 600;
+            this.bullet.damage = 2;
             this.bullet.move(this.target);
+            // this.setAngle(Phaser.Math.Angle.Between(this.x, this.y, this.target.x, this.target.y) - 80);
+            this.setRotation(Phaser.Math.Angle.Between(this.x, this.y, this.target.x, this.target.y) + 90);
+        }
+    }
+    findTarget() {
+        if(this.scene.spawner.waveGroup.getChildren().size <= 0){
+            console.log('No troops in wave group');
+            return 
+        }
+        else{
+            let targets = this.scene.spawner.waveGroup.getChildren();
+            let target = targets[0];
+            targets.forEach(tar => {
+                //find the distance between the tower and the target
+                let dist = Phaser.Math.Distance.Between(this.x, this.y, tar.x, tar.y);
+                if (dist < Phaser.Math.Distance.Between(this.x, this.y, target.x, target.y)) {
+                    target = tar;
+                }
+            });
+
+            if(target != null){
+                if(Phaser.Math.Distance.Between(this.x, this.y, target.x, target.y) <= this.range){
+                    this.target = target;
+                }
+            }
+            else{
+                console.log("No target");
+                this.target = undefined; 
+            }
+        }
+
+    }
+    update(time, delta) {
+        this.bullet.update(time, delta);
+    }
+}
+
+class SMGTower extends Phaser.GameObjects.Sprite {
+    constructor(scene, x, y, key, frame) {
+        super(scene, x, y, key, frame);
+        this.scene = scene;
+        this.setScale(.2);
+        this.range = 350;
+        this.damage = 2;
+        this.setActive(true);
+        this.setVisible(true);
+        this.scene.add.existing(this);
+        this.bulletSpeed = Phaser.Math.GetSpeed(1500, .25);
+        this.bullet = new Bullet(this.scene, this.x, this.y, 'bullet');
+        this.bullet.setActive(false);
+        this.bullet.setVisible(false);
+        this.scene.add.existing(this.bullet);
+        this.shootTimer = this.scene.time.addEvent({
+            delay: 200,
+            callback: () => {
+                this.shoot();
+            },
+            loop: true
+        });
+    }
+    shoot(){
+        // this.physics.add.existing(this.npc);
+        // this.physics.moveTo(this.npc, 500, 300, 300, 2000);
+        this.findTarget();
+        if(this.target){
+            this.bullet = new Bullet(this.scene, this.x, this.y, 'bullet');
+            this.scene.bulletGroup.add(this.bullet);
+            this.bullet.time = 300;
+            this.bullet.damage = .3;
+            let tar = {
+                x: Phaser.Math.Between(this.target.x - 20, this.target.x + 20),
+                y: Phaser.Math.Between(this.target.y - 20, this.target.y + 20)
+            }
+            this.bullet.move(tar);
             // this.setAngle(Phaser.Math.Angle.Between(this.x, this.y, this.target.x, this.target.y) - 80);
             this.setRotation(Phaser.Math.Angle.Between(this.x, this.y, this.target.x, this.target.y) + 90);
         }
