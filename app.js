@@ -250,7 +250,7 @@ class SceneGame extends Phaser.Scene {
 
         
         if (this.player.health <= 0 && !this.gameOver) {
-            this.scene.start('gameOver');
+            this.scene.launch('gameOver');
             this.gameOver = true;
         }
     }
@@ -504,7 +504,7 @@ class Player {
         this.scene = scene;
 
         this.money = 50;
-        this.health = 100;
+        this.health = 0;
     }
 
     static incrementMoney(amount) {
