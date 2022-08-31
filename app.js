@@ -177,7 +177,7 @@ class SceneGame extends Phaser.Scene {
         this.load.image("Egg1", "assets/Egg1.png");
 
         this.load.image("tower", "assets/farmerCrop.png");
-        this.load.image("bullet", "assets/star.png");
+        this.load.image("bullet", "assets/bean.png");
         this.load.image("shotgun", "assets/ShotGunEgg2.png");
         this.load.image('coin', 'assets/TrumpCoin.png');
         this.load.image('health', 'assets/anatomical-heart.png');
@@ -261,6 +261,29 @@ class SceneGame extends Phaser.Scene {
             this.gameOver = true;
         }
     }
+
+    WaveText(prompt, scene) {
+        //console.log(scene)
+        let waveText = scene.add.text(scene.cameras.main.centerX, scene.cameras.main.centerY, prompt, {
+            fontSize: '32px',
+            fill: '#f00',
+            fontFamily: 'Cursive',
+            fontStyle: 'bold'
+
+        });
+        waveText.setOrigin(0.5);
+        waveText.setDepth(1);
+        waveText.setScrollFactor(0);
+
+        this.timer = scene.time.addEvent({
+            delay: 2000,
+            callback: function () {
+                waveText.destroy();
+            },
+            callbackScope: this.scene,
+            loop: false
+        });
+    }
 };
 
 class SceneInstructions extends Phaser.Scene {
@@ -316,7 +339,7 @@ var config = {
         default: 'arcade',
         arcade: {
             gravity: { y: 0 },
-            debug: true
+            debug: false
         }
     }
 };
@@ -406,6 +429,8 @@ class WaveMachine {
 
     startWave(roundNum, delaySec, quantity = this.roundCalc(roundNum)) {
         console.log(`Starting wave ${roundNum} with ${quantity} bloons`);
+        let prompt = `Starting wave ${roundNum} with ${quantity} bloons`;
+        this.scene.WaveText(prompt, this.scene);
         this.inProgress = true;
         this.timer = this.scene.time.addEvent({
             delay: this.delayCalc(roundNum),
@@ -425,6 +450,7 @@ class WaveMachine {
 
                 if (this.timer.repeatCount === 0) {
                     this.inProgress = false;
+                    
 
                     
                     if (this.isAuto) {
