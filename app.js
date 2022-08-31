@@ -65,7 +65,11 @@ class SceneStore extends Phaser.Scene {
         console.log("HELLO I AM THE STORE SCENE");
         this.load.image('UI', 'assets/tempstore.png');
         this.load.image('tower1', 'assets/farmer.png');
+        this.load.image('tower2', 'assets/sniper.png');
+        this.load.image('tower3', 'assets/smg.png');
         this.load.image('range', 'assets/rangeCircle.png');
+        this.load.image('smgrange', 'assets/smgcircle.png');
+        this.load.image('sniperrange', 'assets/sniperCircle.png');
         
     }    
     create() {
@@ -75,47 +79,119 @@ class SceneStore extends Phaser.Scene {
         //this.add.image(400,300, 'UI');
         
         this.storeMenu = this.add.image(400,300, 'UI');
+
         this.tower1 = this.add.image(665, 180, 'tower1').setScale(0.15);
+        this.towerSniper = this.add.image(755, 163, 'tower2').setScale(0.138);
+        this.towerSMG = this.add.image(675, 370, 'tower3').setScale(0.15);
+
         this.circle =this.add.image(400,300, 'range').setVisible(false);
+        this.smgCircle =this.add.image(400,300, 'smgrange').setScale(2).setVisible(false);
+        this.sniperCircle =this.add.image(400,300, 'sniperrange').setScale(2).setVisible(false);
+
         this.storeButton = this.add.text(575, 0, "Shop", { font: "20px Berlin Sans FB Demi", fill: "#FFFFFF" });
         this.storeButton.setInteractive();
+
         this.tower1.setInteractive();
+        this.towerSniper.setInteractive();
+        this.towerSMG.setInteractive();
+
+        this.towerSniper.on('pointerdown', function () {
+            console.log("you clicked sniper!")
+        }, this);
+        this.towerSMG.on('pointerdown', function () {
+            console.log("you clicked SMG!")
+        }, this);
+
         //drag and drop 
         this.input.setDraggable(this.tower1);
+        this.input.setDraggable(this.towerSniper);
+        this.input.setDraggable(this.towerSMG);
+
+       
+
         this.input.on('drag', function (pointer, gameObject, dragX, dragY) {
-            if(MenuIsOpen == true){
-                this.circle.setVisible(true);
-                moveMenu(this.scene, this.storeButton, this.storeMenu, this.tower1);
-                gameObject.setScale(.2);
-                gameObject.setRotation(5.5);
+            
+            if(gameObject == this.tower1){
+                if(MenuIsOpen == true){
+                    this.circle.setVisible(true);
+                    moveMenu(this.scene, this.storeButton, this.storeMenu, this.tower1, this.towerSniper, this.towerSMG);
+                    gameObject.setScale(.2);
+                    gameObject.setRotation(5.5);
+                }
             }
+            if(gameObject == this.towerSniper){
+                if(MenuIsOpen == true){
+                    this.sniperCircle.setVisible(true);
+                    moveMenu(this.scene, this.storeButton, this.storeMenu, this.tower1, this.towerSniper, this.towerSMG);
+                    gameObject.setScale(.2);
+                    gameObject.setRotation(5.5);
+                }
+            }
+            if(gameObject == this.towerSMG){
+                if(MenuIsOpen == true){
+                    this.smgCircle.setVisible(true);
+                    moveMenu(this.scene, this.storeButton, this.storeMenu, this.tower1, this.towerSniper, this.towerSMG);
+                    gameObject.setScale(.2);
+                    gameObject.setRotation(5.5);
+                }
+            }
+            
             this.circle.x = dragX;
             this.circle.y = dragY;
+            this.smgCircle.x = dragX;
+            this.smgCircle.y = dragY;
+            this.sniperCircle.x = dragX;
+            this.sniperCircle.y = dragY;
             gameObject.x = dragX;
             gameObject.y = dragY;
            
         },this);
         this.input.on('dragend', function (pointer, gameObject) {
+            if(gameObject == this.tower1){
             if(buyTower(gameScene) == true){
             placeTower(gameScene, gameObject.x, gameObject.y);
             }
+        }
+        if(gameObject == this.towerSniper){
+            if(buySniperTower(gameScene) == true){
+            placeSniperTower(gameScene, gameObject.x, gameObject.y);
+            }
+        }
+        if(gameObject == this.towerSMG){
+            if(buySMGTower(gameScene) == true){
+            placeSMGTower(gameScene, gameObject.x, gameObject.y);
+            }
+        }
            
             this.circle.setVisible(false);
+            this.smgCircle.setVisible(false);
+            this.sniperCircle.setVisible(false);
             
             gameObject.x = gameObject.input.dragStartX;
             gameObject.y = gameObject.input.dragStartY;
-            gameObject.setScale(.15);
-            gameObject.setRotation(0);
+            if(gameObject == this.tower1){
+                gameObject.setScale(.15);
+                gameObject.setRotation(0);
+            }
+            if(gameObject == this.towerSniper){
+                gameObject.setScale(.138);
+                gameObject.setRotation(0);
+            }
+            if(gameObject == this.towerSMG){
+                gameObject.setScale(.15);
+                gameObject.setRotation(0);
+            }
+            
         
             
             if(MenuIsOpen == false){
-            moveMenu(this.scene, this.storeButton, this.storeMenu, this.tower1);
+            moveMenu(this.scene, this.storeButton, this.storeMenu, this.tower1, this.towerSniper, this.towerSMG);
             }
         }, this);
 
         this.storeButton.on('pointerdown', function(){
             console.log("you clicked shop!")
-            moveMenu(this.scene, this.storeButton, this.storeMenu, this.tower1);
+            moveMenu(this.scene, this.storeButton, this.storeMenu, this.tower1, this.towerSniper, this.towerSMG);
         }, this);
     } 
 
@@ -177,7 +253,9 @@ class SceneGame extends Phaser.Scene {
         this.load.image("Egg1", "assets/Egg1.png");
 
         this.load.image("tower", "assets/farmerCrop.png");
-        this.load.image("bullet", "assets/bean.png");
+        this.load.image("towerSniper", "assets/sniper.png");
+        this.load.image("towerSMG", "assets/smg.png");
+        this.load.image("bullet", "assets/star.png");
         this.load.image("shotgun", "assets/ShotGunEgg2.png");
         this.load.image('coin', 'assets/TrumpCoin.png');
         this.load.image('health', 'assets/anatomical-heart.png');
@@ -450,8 +528,8 @@ class WaveMachine {
 
                 if (this.timer.repeatCount === 0) {
                     this.inProgress = false;
-                    
 
+                    
                     
                     if (this.isAuto) {
                         // wait for set amount of seconds after the timer finishes before starting the next wave
@@ -845,17 +923,32 @@ function placeTower(scene, x, y) {
     scene.add.existing(tower);
     scene.towers.add(tower);
 }
-function moveMenu(scene, storeButton, storeMenu, tower1){
+function placeSniperTower(scene, x, y) {
+    let tower = new SniperTower(scene, x, y, 'towerSniper');
+    scene.add.existing(tower);
+    scene.towers.add(tower);
+}
+function placeSMGTower(scene, x, y) {
+    let tower = new SMGTower(scene, x, y, 'towerSMG');
+    scene.add.existing(tower);
+    scene.towers.add(tower);
+}
+function moveMenu(scene, storeButton, storeMenu, tower1, towerSniper, towerSMG){
     if(MenuIsOpen){
         storeMenu.setPosition(570, 300);
         storeButton.setPosition(745, 0);
         tower1.setPosition(850, 300);
+        towerSniper.setPosition(850, 400);
+        towerSMG.setPosition(850, 395);
+
         MenuIsOpen = false;
     }
     else{
         storeMenu.setPosition(400, 300);
         storeButton.setPosition(575, 0);
         tower1.setPosition(665, 180);
+        towerSniper.setPosition(755, 163);
+        towerSMG.setPosition(675, 370);
         MenuIsOpen = true;
     }
 }
@@ -864,6 +957,20 @@ function buyTower(scene){
     console.log("buying tower");
     if(scene.getPlayerMoney() >= 50){
         scene.decrementMoney(50);
+        return true;
+    }
+}
+function buySniperTower(scene){
+    console.log("buying sniper tower");
+    if(scene.getPlayerMoney() >= 100){
+        scene.decrementMoney(100);
+        return true;
+    }
+}
+function buySMGTower(scene){
+    console.log("buying smg tower");
+    if(scene.getPlayerMoney() >= 75){
+        scene.decrementMoney(75);
         return true;
     }
 }
