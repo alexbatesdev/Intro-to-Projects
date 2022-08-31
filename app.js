@@ -85,8 +85,8 @@ class SceneStore extends Phaser.Scene {
         this.towerSMG = this.add.image(675, 370, 'tower3').setScale(0.15);
 
         this.circle =this.add.image(400,300, 'range').setVisible(false);
-        this.smgCircle =this.add.image(400,300, 'smgrange').setVisible(false);
-        this.sniperCircle =this.add.image(400,300, 'sniperrange').setVisible(false);
+        this.smgCircle =this.add.image(400,300, 'smgrange').setScale(2).setVisible(false);
+        this.sniperCircle =this.add.image(400,300, 'sniperrange').setScale(2).setVisible(false);
 
         this.storeButton = this.add.text(575, 0, "Shop", { font: "20px Berlin Sans FB Demi", fill: "#FFFFFF" });
         this.storeButton.setInteractive();
