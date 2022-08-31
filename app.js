@@ -66,8 +66,10 @@ class SceneStore extends Phaser.Scene {
         this.load.image('UI', 'assets/tempstore.png');
         this.load.image('tower1', 'assets/farmer.png');
         this.load.image('tower2', 'assets/sniper.png');
-        this.load.image('tower3', 'assets/Egg1.png');
+        this.load.image('tower3', 'assets/smg.png');
         this.load.image('range', 'assets/rangeCircle.png');
+        this.load.image('smgrange', 'assets/smgcircle.png');
+        this.load.image('sniperrange', 'assets/sniperCircle.png');
         
     }    
     create() {
@@ -80,9 +82,12 @@ class SceneStore extends Phaser.Scene {
 
         this.tower1 = this.add.image(665, 180, 'tower1').setScale(0.15);
         this.towerSniper = this.add.image(755, 163, 'tower2').setScale(0.138);
-        this.towerSMG = this.add.image(665, 395, 'tower3').setScale(0.15);
+        this.towerSMG = this.add.image(675, 370, 'tower3').setScale(0.15);
 
         this.circle =this.add.image(400,300, 'range').setVisible(false);
+        this.smgCircle =this.add.image(400,300, 'smgrange').setVisible(false);
+        this.sniperCircle =this.add.image(400,300, 'sniperrange').setVisible(false);
+
         this.storeButton = this.add.text(575, 0, "Shop", { font: "20px Berlin Sans FB Demi", fill: "#FFFFFF" });
         this.storeButton.setInteractive();
 
@@ -116,7 +121,7 @@ class SceneStore extends Phaser.Scene {
             }
             if(gameObject == this.towerSniper){
                 if(MenuIsOpen == true){
-                    //circle
+                    this.sniperCircle.setVisible(true);
                     moveMenu(this.scene, this.storeButton, this.storeMenu, this.tower1, this.towerSniper, this.towerSMG);
                     gameObject.setScale(.2);
                     gameObject.setRotation(5.5);
@@ -124,7 +129,7 @@ class SceneStore extends Phaser.Scene {
             }
             if(gameObject == this.towerSMG){
                 if(MenuIsOpen == true){
-                    //circle
+                    this.smgCircle.setVisible(true);
                     moveMenu(this.scene, this.storeButton, this.storeMenu, this.tower1, this.towerSniper, this.towerSMG);
                     gameObject.setScale(.2);
                     gameObject.setRotation(5.5);
@@ -133,6 +138,10 @@ class SceneStore extends Phaser.Scene {
             
             this.circle.x = dragX;
             this.circle.y = dragY;
+            this.smgCircle.x = dragX;
+            this.smgCircle.y = dragY;
+            this.sniperCircle.x = dragX;
+            this.sniperCircle.y = dragY;
             gameObject.x = dragX;
             gameObject.y = dragY;
            
@@ -155,6 +164,8 @@ class SceneStore extends Phaser.Scene {
         }
            
             this.circle.setVisible(false);
+            this.smgCircle.setVisible(false);
+            this.sniperCircle.setVisible(false);
             
             gameObject.x = gameObject.input.dragStartX;
             gameObject.y = gameObject.input.dragStartY;
@@ -242,6 +253,8 @@ class SceneGame extends Phaser.Scene {
         this.load.image("Egg1", "assets/Egg1.png");
 
         this.load.image("tower", "assets/farmerCrop.png");
+        this.load.image("towerSniper", "assets/sniper.png");
+        this.load.image("towerSMG", "assets/smg.png");
         this.load.image("bullet", "assets/star.png");
         this.load.image("shotgun", "assets/ShotGunEgg2.png");
         this.load.image('coin', 'assets/TrumpCoin.png');
@@ -885,12 +898,12 @@ function placeTower(scene, x, y) {
     scene.towers.add(tower);
 }
 function placeSniperTower(scene, x, y) {
-    let tower = new SniperTower(scene, x, y, 'sniperTower');
+    let tower = new SniperTower(scene, x, y, 'towerSniper');
     scene.add.existing(tower);
     scene.towers.add(tower);
 }
 function placeSMGTower(scene, x, y) {
-    let tower = new SMGTower(scene, x, y, 'smgTower');
+    let tower = new SMGTower(scene, x, y, 'towerSMG');
     scene.add.existing(tower);
     scene.towers.add(tower);
 }
@@ -909,7 +922,7 @@ function moveMenu(scene, storeButton, storeMenu, tower1, towerSniper, towerSMG){
         storeButton.setPosition(575, 0);
         tower1.setPosition(665, 180);
         towerSniper.setPosition(755, 163);
-        towerSMG.setPosition(665, 395);
+        towerSMG.setPosition(675, 370);
         MenuIsOpen = true;
     }
 }
