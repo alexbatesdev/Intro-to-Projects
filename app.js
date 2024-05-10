@@ -245,7 +245,7 @@ class SceneGame extends Phaser.Scene {
 
     preload() {
         console.log("starting our game!");
-        this.load.image('background', 'assets/map1.png');
+        this.load.image('background', 'assets/Untitled_Artwork.png');
         this.load.image("spawner", "assets/spawner.png");
         this.load.image("Egg4", "assets/Egg4.png");
         this.load.image("Egg3", "assets/Egg3.png");
@@ -260,7 +260,7 @@ class SceneGame extends Phaser.Scene {
         this.load.image('coin', 'assets/TrumpCoin.png');
         this.load.image('health', 'assets/anatomical-heart.png');
         
-        this.load.json('pathJSON', 'assets/path.json');
+        this.load.json('pathJSON', 'assets/path copy 2.json');
 
         
     }
@@ -437,7 +437,7 @@ class Troop extends Phaser.GameObjects.PathFollower {
         this.setScale(.1);
         this.bloonConfig = {
             positionOnPath: true,
-            duration: 20 * 1000,
+            duration: 60 * 1000,
             repeat: 0,
             yoyo: false,
             rotateToPath: false,
@@ -471,7 +471,7 @@ class Troop extends Phaser.GameObjects.PathFollower {
     }
 
     updateTexture() {
-        switch (this.health) {
+        switch (Math.floor(this.health)) {
             case 1:
                 this.setTexture("Egg1");
                 break;
