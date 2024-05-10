@@ -720,7 +720,7 @@ class Tower extends Phaser.GameObjects.Sprite {
             this.bullet = new Bullet(this.scene, this.x, this.y, 'bullet');
             this.scene.bulletGroup.add(this.bullet);
             this.bullet.time = 250;
-            this.bullet.damage = 1;
+            this.bullet.damage = 2;
             this.bullet.move(this.target);
             // this.setAngle(Phaser.Math.Angle.Between(this.x, this.y, this.target.x, this.target.y) - 80);
             this.setRotation(Phaser.Math.Angle.Between(this.x, this.y, this.target.x, this.target.y) + 90);
@@ -783,12 +783,12 @@ class SniperTower extends Phaser.GameObjects.Sprite {
     shoot(){
         // this.physics.add.existing(this.npc);
         // this.physics.moveTo(this.npc, 500, 300, 300, 2000);
-        this.findTarget();
+        this.target = this.findTarget();
         if(this.target){
             this.bullet = new Bullet(this.scene, this.x, this.y, 'bullet');
             this.scene.bulletGroup.add(this.bullet);
             this.bullet.time = 600;
-            this.bullet.damage = 2;
+            this.bullet.damage = 5;
             this.bullet.move(this.target);
             // this.setAngle(Phaser.Math.Angle.Between(this.x, this.y, this.target.x, this.target.y) - 80);
             this.setRotation(Phaser.Math.Angle.Between(this.x, this.y, this.target.x, this.target.y) + 90);
@@ -809,15 +809,14 @@ class SniperTower extends Phaser.GameObjects.Sprite {
                     target = tar;
                 }
             });
-
-            if(target != null){
+            if(target){
                 if(Phaser.Math.Distance.Between(this.x, this.y, target.x, target.y) <= this.range){
-                    this.target = target;
+                    return target;
                 }
             }
             else{
                 console.log("No target");
-                this.target = undefined; 
+                return; 
             }
         }
 
@@ -853,7 +852,7 @@ class SMGTower extends Phaser.GameObjects.Sprite {
     shoot(){
         // this.physics.add.existing(this.npc);
         // this.physics.moveTo(this.npc, 500, 300, 300, 2000);
-        this.findTarget();
+        this.target = this.findTarget();
         if(this.target){
             this.bullet = new Bullet(this.scene, this.x, this.y, 'bullet');
             this.scene.bulletGroup.add(this.bullet);
@@ -865,7 +864,7 @@ class SMGTower extends Phaser.GameObjects.Sprite {
             }
             this.bullet.move(tar);
             // this.setAngle(Phaser.Math.Angle.Between(this.x, this.y, this.target.x, this.target.y) - 80);
-            this.setRotation(Phaser.Math.Angle.Between(this.x, this.y, this.target.x, this.target.y) + 90);
+            this.setAngle(Phaser.Math.Angle.Between(this.x, this.y, this.target.x, this.target.y) - 140);
         }
     }
     findTarget() {
@@ -886,12 +885,12 @@ class SMGTower extends Phaser.GameObjects.Sprite {
 
             if(target != null){
                 if(Phaser.Math.Distance.Between(this.x, this.y, target.x, target.y) <= this.range){
-                    this.target = target;
+                    return target;
                 }
             }
             else{
                 console.log("No target");
-                this.target = undefined; 
+                return; 
             }
         }
 
